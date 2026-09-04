@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cute MathLingo - Chibi Playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Mitr:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Mitr', 'Fredoka', sans-serif; }
+    .bouncy { animation: bounce 0.6s infinite alternate; }
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+  </style>
+</head>
+<body class="bg-sky-50 min-h-screen flex flex-col justify-between select-none">
+
+  <!-- Header -->
+  <header id="main-header" class="hidden max-w-md mx-auto w-full p-4 flex justify-between items-center bg-white/90 backdrop-blur-md shadow-sm rounded-b-3xl border-b-2 border-sky-100">
+    <div class="flex items-center space-x-2 cursor-pointer" onclick="showAvatarStudio()">
+      <div class="w-12 h-12 bg-sky-100 rounded-2xl flex items-center justify-center border-2 border-sky-200">
+        <!-- Wrapper มัดรวมหน้ากับหมวกและแว่นตา (ปรับตำแหน่งแว่นให้สูงขึ้น) -->
+        <div class="relative leading-none mt-1">
+          <span id="header-avatar" class="text-2xl block">👧🏼</span>
+          <span id="header-hat" class="text-[14px] absolute -top-2 left-1/2 -translate-x-1/2 z-10">👑</span>
+          <span id="header-glasses" class="text-[10px] absolute top-0.5 left-1/2 -translate-x-1/2 z-10">🕶️</span>
+          <span id="header-item" class="text-[12px] absolute -bottom-1 -right-1 z-10">🪄</span>
+        </div>
+      </div>
+      <div>
+        <span id="header-username" class="font-bold text-sky-800 text-xs block">นักเรียน</span>
+        <span class="text-[10px] bg-sky-100 text-sky-600 px-2 py-0.5 rounded-full font-bold">🎨 แต่งจิบิ</span>
+      </div>
+    </div>
+    <div class="flex items-center space-x-2">
+      <button onclick="showLeaderboard()" class="px-3 py-2 bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-2xl text-xs font-bold transition-all flex items-center space-x-1 border-b-2 border-amber-300">
+        <span class="text-base">🏆</span>
+        <span>คนเก่ง</span>
+      </button>
+      <div class="flex items-center space-x-1 bg-amber-50 px-3 py-1.5 rounded-2xl border border-amber-200">
+        <span class="text-sm">⭐</span>
+        <span id="xp-text" class="font-bold text-amber-500 text-xs">0 XP</span>
+      </div>
+      <button onclick="handleLogout()" class="p-2 bg-rose-50 text-rose-400 hover:bg-rose-100 rounded-2xl text-xs font-bold transition-all">ออก</button>
+    </div>
+  </header>
+
+  <!-- หน้า Auth: Sign Up / Log In -->
+  <div id="auth-screen" class="max-w-md mx-auto w-full p-8 my-auto text-center bg-white rounded-3xl shadow-xl border-b-8 border-sky-100">
+    <div class="text-6xl mb-2 bouncy inline-block">👧🏼</div>
+    <h1 class="text-2xl font-bold text-sky-800 mb-1">MathLingo Quest</h1>
+    <p class="text-xs text-sky-400 mb-6">เข้าสู่ระบบเพื่อสะสม XP และติดอันดับคนเก่ง!</p>
+    
+    <div class="flex bg-sky-50 p-1 rounded-2xl mb-4 border border-sky-100">
+      <button id="tab-login" onclick="switchAuthTab('login')" class="w-1/2 py-2 rounded-xl text-xs font-bold text-sky-600 bg-white shadow-sm transition-all">เข้าสู่ระบบ (Log In)</button>
+      <button id="tab-signup" onclick="switchAuthTab('signup')" class="w-1/2 py-2 rounded-xl text-xs font-bold text-slate-400 transition-all">สมัครใหม่ (Sign Up)</button>
+    </div>
+
+    <div class="space-y-3 text-left mb-6">
+      <div>
+        <label class="text-[11px] font-bold text-slate-500 block mb-1">ชื่อผู้ใช้ (Username)</label>
+        <input type="text" id="auth-username" placeholder="เช่น PangPond" class="w-full px-4 py-2.5 bg-sky-50/50 border border-sky-100 rounded-2xl focus:outline-none focus:border-sky-400 font-bold text-slate-700 text-sm">
+      </div>
+      <div>
+        <label class="text-[11px] font-bold text-slate-500 block mb-1">รหัสผ่าน (Password)</label>
+        <input type="password" id="auth-password" placeholder="••••••••" class="w-full px-4 py-2.5 bg-sky-50/50 border border-sky-100 rounded-2xl focus:outline-none focus:border-sky-400 font-bold text-slate-700 text-sm">
+      </div>
+    </div>
+
+    <button id="auth-btn" onclick="handleAuthSubmit()" class="w-full py-3.5 bg-sky-400 hover:bg-sky-500 text-white font-bold text-base rounded-2xl shadow-[0_4px_0_#38bdf8] active:translate-y-1 transition-all">
+      เข้าเล่นเลย! ✨
+    </button>
+  </div>
+
+  <!-- หน้าหลัก: เลือกระดับชั้น -->
+  <div id="grade-screen" class="hidden max-w-md mx-auto w-full p-6 my-auto text-center">
+    <div class="bg-white p-4 rounded-3xl shadow-md mb-6 border-b-4 border-sky-100 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-14 h-14 bg-sky-50 rounded-2xl flex items-center justify-center border-2 border-sky-100 shadow-inner">
+          <div class="relative leading-none mt-2">
+            <span id="display-avatar" class="text-3xl block">👧🏼</span>
+            <span id="display-hat" class="text-[16px] absolute -top-3 left-1/2 -translate-x-1/2 z-10">👑</span>
+            <span id="display-glasses" class="text-[12px] absolute top-1 left-1/2 -translate-x-1/2 z-10">🕶️</span>
+            <span id="display-item" class="text-[14px] absolute -bottom-1 -right-2 z-10">🪄</span>
+          </div>
+        </div>
+        <div class="text-left">
+          <h2 id="display-username" class="font-bold text-slate-700 text-base">น้องจิบิ</h2>
+          <p class="text-xs text-sky-400">พร้อมลุยโจทย์วิชาคณิต!</p>
+        </div>
+      </div>
+      <button onclick="showAvatarStudio()" class="px-3 py-2 bg-sky-100 hover:bg-sky-200 text-sky-600 rounded-2xl text-xs font-bold transition-all border-b-2 border-sky-300">🎨 แต่งจิบิ</button>
+    </div>
+
+    <h3 class="text-lg font-bold text-sky-800 mb-1 text-left">เลือกชั้นเรียน 🎓</h3>
+    <p class="text-xs text-sky-400 mb-4 text-left">เลือกชั้นเรียนเพื่อดูบทเรียนย่อย</p>
+    
+    <div class="grid grid-cols-2 gap-3">
+      <button onclick="showLessons('p1')" class="p-4 bg-white border-2 border-sky-100 border-b-4 hover:border-sky-300 rounded-3xl text-center shadow-sm active:translate-y-1 transition-all">
+        <span class="text-3xl block mb-1">🐥</span>
+        <span class="font-bold text-slate-600 block text-sm">ป.1</span>
+      </button>
+      <button onclick="showLessons('p2')" class="p-4 bg-white border-2 border-sky-100 border-b-4 hover:border-sky-300 rounded-3xl text-center shadow-sm active:translate-y-1 transition-all">
+        <span class="text-3xl block mb-1">🐰</span>
+        <span class="font-bold text-slate-600 block text-sm">ป.2</span>
+      </button>
+      <button onclick="showLessons('p3')" class="p-4 bg-white border-2 border-sky-100 border-b-4 hover:border-sky-300 rounded-3xl text-center shadow-sm active:translate-y-1 transition-all">
+        <span class="text-3xl block mb-1">🐻</span>
+        <span class="font-bold text-slate-600 block text-sm">ป.3</span>
+      </button>
+      <button onclick="showLessons('p4')" class="p-4 bg-white border-2 border-sky-100 border-b-4 hover:border-sky-300 rounded-3xl text-center shadow-sm active:translate-y-1 transition-all">
+        <span class="text-3xl block mb-1">🐳</span>
+        <span class="font-bold text-slate-600 block text-sm">ป.4</span>
+      </button>
+      <button onclick="showLessons('p5')" class="p-4 bg-white border-2 border-sky-100 border-b-4 hover:border-sky-300 rounded-3xl text-center shadow-sm active:translate-y-1 transition-all">
+        <span class="text-3xl block mb-1">🦊</span>
+        <span class="font-bold text-slate-600 block text-sm">ป.5</span>
+      </button>
+      <button onclick="showLessons('p6')" class="p-4 bg-white border-2 border-sky-100 border-b-4 hover:border-sky-300 rounded-3xl text-center shadow-sm active:translate-y-1 transition-all">
+        <span class="text-3xl block mb-1">🦄</span>
+        <span class="font-bold text-slate-600 block text-sm">ป.6</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- หน้าเลือกบทเรียนย่อย (Lesson Screen) -->
+  <div id="lesson-screen" class="hidden max-w-md mx-auto w-full p-6 my-auto text-center">
+    <div class="flex items-center mb-6 space-x-3">
+      <button onclick="showGradeSelection()" class="w-10 h-10 bg-white rounded-full flex items-center justify-center border-2 border-sky-100 hover:bg-sky-50 shadow-sm transition-all">
+        <span class="text-slate-500 font-bold">←</span>
+      </button>
+      <div class="text-left">
+        <h3 id="lesson-grade-title" class="text-lg font-bold text-sky-800 leading-tight">บทเรียน ป.X</h3>
+        <p class="text-xs text-sky-400">ทำเควสต์ 5 ข้อ สะสม XP!</p>
+      </div>
+    </div>
+    
+    <div id="lesson-list-container" class="grid grid-cols-1 gap-3">
+      <!-- โหลดบทเรียนย่อยผ่าน JS -->
+    </div>
+  </div>
+
+  <!-- Chibi Avatar Studio -->
+  <div id="avatar-modal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div class="bg-white max-w-sm w-full p-6 rounded-3xl shadow-2xl text-center border-b-8 border-sky-100">
+      <h3 class="text-xl font-bold text-slate-700 mb-1">Chibi Studio 🎨</h3>
+      <p class="text-xs text-sky-400 mb-3">สร้างตัวละครจิบิมนุษย์ในสไตล์คุณ!</p>
+      
+      <!-- Preview กล่องใหญ่ (แก้ตำแหน่งแว่นให้ขยับขึ้น top-3) -->
+      <div class="w-28 h-28 mx-auto mb-4 bg-sky-50 rounded-3xl border-2 border-sky-100 flex items-center justify-center shadow-inner">
+        <div class="relative leading-none mt-4">
+          <span id="studio-avatar-preview" class="text-6xl block">👧🏼</span>
+          <span id="studio-hat-preview" class="text-3xl absolute -top-5 left-1/2 -translate-x-1/2 z-10">👑</span>
+          <span id="studio-glasses-preview" class="text-2xl absolute top-3 left-1/2 -translate-x-1/2 z-10">🕶️</span>
+          <span id="studio-item-preview" class="text-2xl absolute -bottom-1 -right-4 z-10">🪄</span>
+        </div>
+      </div>
+
+      <div class="flex bg-sky-50 p-1 rounded-2xl mb-3 border border-sky-100 text-[11px] font-bold">
+        <button id="tab-part-body" onclick="switchStudioTab('body')" class="w-1/4 py-1.5 rounded-xl bg-white text-sky-600 shadow-sm">จิบิ</button>
+        <button id="tab-part-hat" onclick="switchStudioTab('hat')" class="w-1/4 py-1.5 rounded-xl text-slate-400">หมวก</button>
+        <button id="tab-part-glasses" onclick="switchStudioTab('glasses')" class="w-1/4 py-1.5 rounded-xl text-slate-400">แว่น</button>
+        <button id="tab-part-item" onclick="switchStudioTab('item')" class="w-1/4 py-1.5 rounded-xl text-slate-400">ไอเทม</button>
+      </div>
+
+      <div id="part-options-container" class="grid grid-cols-4 gap-2 mb-6 h-32 overflow-y-auto p-1"></div>
+
+      <div class="flex space-x-2">
+        <button onclick="closeAvatarStudio()" class="w-1/3 py-3 bg-slate-100 hover:bg-slate-200 text-slate-500 font-bold text-xs rounded-2xl">ยกเลิก</button>
+        <button onclick="saveAvatarStudio()" class="w-2/3 py-3 bg-sky-400 hover:bg-sky-500 text-white font-bold text-xs rounded-2xl shadow-[0_3px_0_#38bdf8]">บันทึกจิบิ ✨</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ตารางคนเก่ง Leaderboard สำหรับเด็ก -->
+  <div id="leaderboard-modal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div class="bg-white max-w-sm w-full p-6 rounded-3xl shadow-2xl text-center border-b-8 border-sky-100">
+      <div class="text-5xl mb-1 bouncy inline-block">🏆</div>
+      <h3 class="text-2xl font-bold text-amber-500 mb-1">ตารางคนเก่ง</h3>
+      <p class="text-xs text-sky-400 mb-4">เพื่อนๆ ที่สะสมดาว XP ได้เยอะที่สุด!</p>
+
+      <div id="leaderboard-list" class="space-y-2.5 mb-6 max-h-64 overflow-y-auto pr-1"></div>
+
+      <button onclick="closeLeaderboard()" class="w-full py-3.5 bg-amber-400 hover:bg-amber-500 text-white font-bold text-sm rounded-2xl shadow-[0_4px_0_#f59e0b] active:translate-y-1 transition-all">
+        ปิดหน้าต่าง ✖️
+      </button>
+    </div>
+  </div>
+
+  <!-- หน้าทำโจทย์ -->
+  <main id="quiz-screen" class="hidden max-w-md mx-auto w-full p-6 bg-white rounded-3xl shadow-xl my-auto text-center border-b-8 border-sky-100 relative">
+    <div class="flex items-center justify-between mb-2">
+      <span id="quest-count" class="text-xs font-bold text-sky-400">ข้อที่ 1/5</span>
+      <span id="level-badge" class="bg-sky-100 text-sky-600 text-[11px] font-bold px-3 py-0.5 rounded-full">กำลังโหลด...</span>
+    </div>
+    <div class="w-full bg-sky-50 h-3 rounded-full overflow-hidden mb-6 border border-sky-100">
+      <div id="progress-bar" class="bg-sky-400 h-full w-0 transition-all duration-500 rounded-full"></div>
+    </div>
+
+    <h2 id="question-text" class="text-2xl font-bold text-slate-700 mb-8 min-h-[60px] flex items-center justify-center">กำลังสร้างโจทย์... ☁️</h2>
+    <div id="options-container" class="grid grid-cols-2 gap-3 mb-6"></div>
+
+    <button id="check-btn" onclick="checkAnswer()" disabled class="w-full py-3.5 bg-sky-400 hover:bg-sky-500 disabled:bg-slate-100 disabled:text-slate-300 disabled:shadow-none text-white font-bold text-base rounded-2xl shadow-[0_4px_0_#38bdf8] active:translate-y-1 transition-all">
+      ส่งคำตอบ ✨
+    </button>
+  </main>
+
+  <!-- หน้าสรุปผล Quest Completed -->
+  <div id="quest-complete-screen" class="hidden max-w-md mx-auto w-full p-6 bg-white rounded-3xl shadow-xl my-auto text-center border-b-8 border-sky-100">
+    <div class="w-20 h-20 mx-auto mb-2 bg-sky-50 rounded-full flex items-center justify-center border-2 border-sky-100">
+      <div class="relative leading-none mt-3 bouncy">
+        <span id="complete-avatar" class="text-4xl block">👧🏼</span>
+        <span id="complete-hat" class="text-2xl absolute -top-4 left-1/2 -translate-x-1/2 z-10">👑</span>
+        <span id="complete-glasses" class="text-lg absolute top-1.5 left-1/2 -translate-x-1/2 z-10">🕶️</span>
+        <span id="complete-item" class="text-lg absolute -bottom-1 -right-3 z-10">🪄</span>
+      </div>
+    </div>
+    <h2 id="praise-text" class="text-2xl font-bold text-sky-500 mb-1">สุดยอดไปเลย! 🌟</h2>
+    <p class="text-xs text-slate-400 mb-6">ทำเควสต์สำเร็จแล้วน้า</p>
+
+    <div class="grid grid-cols-2 gap-3 mb-6">
+      <div class="bg-sky-50/70 rounded-2xl p-3 border border-sky-100">
+        <span class="text-[11px] text-sky-400 block font-bold mb-1">ความถูกต้อง</span>
+        <span id="accuracy-stat" class="text-2xl font-bold text-sky-600">100%</span>
+      </div>
+      <div class="bg-rose-50/70 rounded-2xl p-3 border border-rose-100">
+        <span class="text-[11px] text-rose-400 block font-bold mb-1">ตอบผิด</span>
+        <span id="wrong-stat" class="text-2xl font-bold text-rose-500">0 ข้อ</span>
+      </div>
+      <div class="bg-amber-50/70 rounded-2xl p-3 border border-amber-100">
+        <span class="text-[11px] text-amber-500 block font-bold mb-1">เวลาที่ใช้</span>
+        <span id="time-stat" class="text-xl font-bold text-amber-600">00:30 นาที</span>
+      </div>
+      <div class="bg-emerald-50/70 rounded-2xl p-3 border border-emerald-100">
+        <span class="text-[11px] text-emerald-500 block font-bold mb-1">ดาวที่ได้รับ</span>
+        <span id="quest-xp-earned" class="text-xl font-bold text-emerald-600">+50 XP</span>
+      </div>
+    </div>
+
+    <button onclick="showGradeSelection()" class="w-full py-4 bg-sky-400 hover:bg-sky-500 text-white font-bold text-base rounded-2xl shadow-[0_4px_0_#38bdf8] active:translate-y-1 transition-all">
+      กลับสู่หน้าหลัก 🏡
+    </button>
+  </div>
+
+  <!-- Banner ผลลัพธ์ -->
+  <div id="result-banner" class="hidden fixed bottom-0 left-0 right-0 p-5 shadow-2xl transition-all border-t-4 z-40">
+    <div class="max-w-md mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <span id="result-icon" class="text-3xl"></span>
+        <div class="text-left">
+          <h3 id="result-title" class="font-bold text-lg"></h3>
+          <p id="result-detail" class="text-xs font-medium"></p>
+        </div>
+      </div>
+      <button id="next-btn" onclick="nextQuestion()" class="px-5 py-2.5 font-bold text-sm rounded-xl shadow-md transition-all">ข้อถัดไป ➡️</button>
+    </div>
+  </div>
+
+  <script>
+    let authMode = 'login';
+    let currentUser = null;
+    let tempParts = { body: '👧🏼', hat: '👑', glasses: '', item: '' };
+    
+    const avatarItemsDB = {
+      body: ['👦', '👧', '🧒', '👧🏼', '👦🏽', '👩🏻‍🦰', '👨‍🦱🏼', '🧑🏻‍🦱', '👩🏽‍🦱', '🧑‍🎨', '🧙‍♂️', '🦸‍♀️'],
+      hat: ['', '👑', '🎓', '🎀', '🎩', '🚀', '🌸', '🎧', '🧢'],
+      glasses: ['', '🕶️', '👓', '🥽', '🪞'],
+      item: ['', '🪄', '🎈', '⭐', '🎸', '⚽', '🎨', '🐱', '🐶', '🧸']
+    };
+
+    // โครงสร้างบทเรียนย่อย
+    const curriculum = {
+      p1: { title: "ประถมศึกษาปีที่ 1", lessons: [
+        { id: 'p1_add_10', name: 'บวกเลขหรรษา (ไม่เกิน 10)', icon: '🍎' },
+        { id: 'p1_sub_10', name: 'ลบเลขแสนสนุก (ไม่เกิน 10)', icon: '🍌' },
+        { id: 'p1_add_20', name: 'บวกเลขพาเพลิน (ไม่เกิน 20)', icon: '🍇' }
+      ]},
+      p2: { title: "ประถมศึกษาปีที่ 2", lessons: [
+        { id: 'p2_mul_2_5', name: 'ท่องสูตรคูณแม่ 2-5', icon: '🐰' },
+        { id: 'p2_mul_6_9', name: 'ท่องสูตรคูณแม่ 6-9', icon: '🦊' },
+        { id: 'p2_add_100', name: 'บวกเลข 2 หลัก', icon: '🐻' }
+      ]},
+      p3: { title: "ประถมศึกษาปีที่ 3", lessons: [
+        { id: 'p3_div_basic', name: 'การหารลงตัว', icon: '🐬' },
+        { id: 'p3_sub_100', name: 'ลบเลขทะลุร้อย', icon: '🐧' }
+      ]},
+      p4: { title: "ประถมศึกษาปีที่ 4", lessons: [
+        { id: 'p4_mul_2digit', name: 'คูณเลข 2 หลัก', icon: '🐳' },
+        { id: 'p4_div_2digit', name: 'หารเลข 2 หลัก', icon: '🐙' }
+      ]},
+      p5: { title: "ประถมศึกษาปีที่ 5", lessons: [
+        { id: 'p5_frac_basic', name: 'เศษส่วนพื้นฐาน', icon: '🍕' },
+        { id: 'p5_dec_add', name: 'บวกทศนิยม 1 ตำแหน่ง', icon: '🍉' }
+      ]},
+      p6: { title: "ประถมศึกษาปีที่ 6", lessons: [
+        { id: 'p6_percent', name: 'ร้อยละเปอร์เซ็นต์', icon: '💯' },
+        { id: 'p6_equation', name: 'สมการน่ารู้', icon: '⚖️' }
+      ]}
+    };
+    
+    let currentStudioTab = 'body';
+    let currentGradeTitle = '', currentLogicId = '', currentQuestion = null, selectedOption = null;
+    let questProgress = 0, correctAnswersCount = 0, wrongAnswersCount = 0, startTime = null;
+
+    const praiseList = ["อัจฉริยะตัวน้อย! 🌟", "เก่งมากเลยคนเก่ง! 🦄", "สมองไวสุดๆ ไปเลย! ⚡", "ยอดเยี่ยมกระเทียมดอง! 🎈", "ทำได้ดีมากจ้า! ☁️"];
+
+    function getUsersDB() { return JSON.parse(localStorage.getItem('mathlingo_users_db') || '{}'); }
+    function saveUsersDB(db) { localStorage.setItem('mathlingo_users_db', JSON.stringify(db)); }
+
+    window.onload = () => {
+      const activeSession = localStorage.getItem('mathlingo_active_session');
+      if (activeSession) {
+        const db = getUsersDB();
+        if (db[activeSession]) {
+          currentUser = db[activeSession];
+          updateUserUI();
+          showGradeSelection();
+        }
+      }
+    };
+
+    function switchAuthTab(mode) {
+      authMode = mode;
+      const loginTab = document.getElementById('tab-login');
+      const signupTab = document.getElementById('tab-signup');
+      const authBtn = document.getElementById('auth-btn');
+
+      if (mode === 'login') {
+        loginTab.className = "w-1/2 py-2 rounded-xl text-xs font-bold text-sky-600 bg-white shadow-sm transition-all";
+        signupTab.className = "w-1/2 py-2 rounded-xl text-xs font-bold text-slate-400 transition-all";
+        authBtn.innerText = "เข้าเล่นเลย! ✨";
+      } else {
+        signupTab.className = "w-1/2 py-2 rounded-xl text-xs font-bold text-sky-600 bg-white shadow-sm transition-all";
+        loginTab.className = "w-1/2 py-2 rounded-xl text-xs font-bold text-slate-400 transition-all";
+        authBtn.innerText = "ลงทะเบียนสมัครสมาชิก 🚀";
+      }
+    }
+
+    function handleAuthSubmit() {
+      const usernameInput = document.getElementById('auth-username').value.trim();
+      const passwordInput = document.getElementById('auth-password').value.trim();
+      if (!usernameInput || !passwordInput) return alert('กรุณากรอกข้อมูลให้ครบถ้วนครับ!');
+
+      const db = getUsersDB();
+      if (authMode === 'signup') {
+        if (db[usernameInput]) return alert('ชื่อผู้ใช้นี้มีคนใช้แล้วครับ');
+        db[usernameInput] = { username: usernameInput, password: passwordInput, avatar: '👧🏼', hat: '👑', glasses: '', item: '', xp: 0 };
+        saveUsersDB(db);
+        alert('สมัครสมาชิกสำเร็จ!');
+      } else {
+        if (!db[usernameInput] || db[usernameInput].password !== passwordInput) {
+          return alert('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง!');
+        }
+      }
+      currentUser = db[usernameInput];
+      localStorage.setItem('mathlingo_active_session', currentUser.username);
+      updateUserUI();
+      showGradeSelection();
+    }
+
+    function handleLogout() {
+      if (currentUser) syncUserData();
+      localStorage.removeItem('mathlingo_active_session');
+      currentUser = null;
+      document.getElementById('main-header').classList.add('hidden');
+      document.getElementById('grade-screen').classList.add('hidden');
+      document.getElementById('lesson-screen').classList.add('hidden');
+      document.getElementById('auth-screen').classList.remove('hidden');
+    }
+
+    function syncUserData() {
+      if (!currentUser) return;
+      const db = getUsersDB();
+      db[currentUser.username] = currentUser;
+      saveUsersDB(db);
+      updateUserUI();
+    }
+
+    function updateUserUI() {
+      if (!currentUser) return;
+      document.getElementById('header-username').innerText = currentUser.username;
+      document.getElementById('display-username').innerText = currentUser.username;
+      
+      const setAvatarToElements = (avatarId, hatId, glassesId, itemId) => {
+        document.getElementById(avatarId).innerText = currentUser.avatar || '👧🏼';
+        document.getElementById(hatId).innerText = currentUser.hat || '';
+        document.getElementById(glassesId).innerText = currentUser.glasses || '';
+        document.getElementById(itemId).innerText = currentUser.item || '';
+      };
+      setAvatarToElements('header-avatar', 'header-hat', 'header-glasses', 'header-item');
+      setAvatarToElements('display-avatar', 'display-hat', 'display-glasses', 'display-item');
+      document.getElementById('xp-text').innerText = `${currentUser.xp} XP`;
+    }
+
+    function showAvatarStudio() {
+      tempParts = { body: currentUser.avatar || '👧🏼', hat: currentUser.hat || '', glasses: currentUser.glasses || '', item: currentUser.item || '' };
+      updateStudioPreview();
+      switchStudioTab('body');
+      document.getElementById('avatar-modal').classList.remove('hidden');
+    }
+
+    function closeAvatarStudio() { document.getElementById('avatar-modal').classList.add('hidden'); }
+
+    function switchStudioTab(tab) {
+      currentStudioTab = tab;
+      ['body', 'hat', 'glasses', 'item'].forEach(t => {
+        const btn = document.getElementById(`tab-part-${t}`);
+        btn.className = t === tab ? "w-1/4 py-1.5 rounded-xl bg-white text-sky-600 shadow-sm font-bold" : "w-1/4 py-1.5 rounded-xl text-slate-400 font-bold";
+      });
+      const container = document.getElementById('part-options-container');
+      container.innerHTML = '';
+      avatarItemsDB[tab].forEach(item => {
+        const btn = document.createElement('button');
+        btn.innerText = item === '' ? 'ถอด' : item;
+        btn.className = `p-3 text-2xl bg-sky-50 hover:bg-sky-100 rounded-2xl transition-all border border-sky-100 flex items-center justify-center font-bold text-xs ${item === '' ? 'text-slate-400' : ''}`;
+        btn.onclick = () => { tempParts[tab] = item; updateStudioPreview(); };
+        container.appendChild(btn);
+      });
+    }
+
+    function updateStudioPreview() {
+      document.getElementById('studio-avatar-preview').innerText = tempParts.body;
+      document.getElementById('studio-hat-preview').innerText = tempParts.hat;
+      document.getElementById('studio-glasses-preview').innerText = tempParts.glasses;
+      document.getElementById('studio-item-preview').innerText = tempParts.item;
+    }
+
+    function saveAvatarStudio() {
+      currentUser.avatar = tempParts.body; currentUser.hat = tempParts.hat; currentUser.glasses = tempParts.glasses; currentUser.item = tempParts.item;
+      syncUserData(); closeAvatarStudio();
+    }
+
+    function showLeaderboard() {
+      const db = getUsersDB();
+      const usersList = Object.values(db).sort((a, b) => b.xp - a.xp);
+      const container = document.getElementById('leaderboard-list');
+      container.innerHTML = '';
+
+      usersList.forEach((u, idx) => {
+        const isTop3 = idx < 3; const rankDisplay = isTop3 ? ['🥇', '🥈', '🥉'][idx] : `#${idx + 1}`;
+        const isSelf = currentUser && u.username === currentUser.username;
+        const row = document.createElement('div');
+        row.className = `flex items-center justify-between p-3 rounded-2xl border-2 ${isTop3 ? 'bg-amber-50 border-amber-200' : isSelf ? 'bg-sky-50 border-sky-200' : 'bg-slate-50 border-slate-100'}`;
+        row.innerHTML = `
+          <div class="flex items-center space-x-3">
+            <span class="font-bold ${isTop3 ? 'text-xl' : 'text-sm text-slate-400'} w-6">${rankDisplay}</span>
+            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-slate-100 shadow-sm">
+              <div class="relative leading-none mt-1.5">
+                <span class="text-[20px] block">${u.avatar || '👧🏼'}</span>
+                <span class="text-[12px] absolute -top-2 left-1/2 -translate-x-1/2 z-10">${u.hat || ''}</span>
+                <span class="text-[8px] absolute top-0 left-1/2 -translate-x-1/2 z-10">${u.glasses || ''}</span>
+                <span class="text-[10px] absolute -bottom-1 -right-2 z-10">${u.item || ''}</span>
+              </div>
+            </div>
+            <span class="font-bold text-slate-700 text-xs">${u.username} ${isSelf ? '🌟' : ''}</span>
+          </div>
+          <div class="bg-white px-3 py-1 rounded-xl border border-amber-200 shadow-sm flex items-center space-x-1"><span class="text-xs">⭐</span><span class="font-bold text-amber-500 text-xs">${u.xp}</span></div>
+        `;
+        container.appendChild(row);
+      });
+      document.getElementById('leaderboard-modal').classList.remove('hidden');
+    }
+
+    function closeLeaderboard() { document.getElementById('leaderboard-modal').classList.add('hidden'); }
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+    function showGradeSelection() {
+      document.getElementById('auth-screen').classList.add('hidden');
+      document.getElementById('quiz-screen').classList.add('hidden');
+      document.getElementById('quest-complete-screen').classList.add('hidden');
+      document.getElementById('lesson-screen').classList.add('hidden');
+      document.getElementById('result-banner').classList.add('hidden');
+      document.getElementById('main-header').classList.remove('hidden');
+      document.getElementById('grade-screen').classList.remove('hidden');
+    }
+
+    function showLessons(gradeKey) {
+      document.getElementById('grade-screen').classList.add('hidden');
+      document.getElementById('lesson-screen').classList.remove('hidden');
+      
+      const gradeData = curriculum[gradeKey];
+      document.getElementById('lesson-grade-title').innerText = `บทเรียน ${gradeData.title}`;
+      const container = document.getElementById('lesson-list-container');
+      container.innerHTML = '';
+      
+      gradeData.lessons.forEach(lesson => {
+        const btn = document.createElement('button');
+        btn.onclick = () => startLessonQuest(gradeData.title, lesson);
+        btn.className = "w-full p-4 bg-white border-2 border-sky-100 border-b-4 hover:border-sky-300 rounded-3xl flex items-center justify-between shadow-sm active:translate-y-1 transition-all";
+        btn.innerHTML = `
+          <div class="flex items-center space-x-4">
+            <span class="text-3xl bg-sky-50 w-12 h-12 rounded-2xl flex items-center justify-center">${lesson.icon}</span>
+            <span class="font-bold text-slate-600 text-sm">${lesson.name}</span>
+          </div>
+          <span class="text-sky-300 font-bold">เริ่ม ➡️</span>
+        `;
+        container.appendChild(btn);
+      });
+    }
+
+    function startLessonQuest(gradeTitle, lesson) {
+      currentGradeTitle = gradeTitle;
+      currentLogicId = lesson.id;
+      questProgress = 0; correctAnswersCount = 0; wrongAnswersCount = 0; startTime = new Date();
+      
+      document.getElementById('level-badge').innerText = lesson.name;
+      document.getElementById('lesson-screen').classList.add('hidden');
+      document.getElementById('quiz-screen').classList.remove('hidden');
+      loadNextQuestion();
+    }
+
+    function generateOptions(correct) {
+      let opts = new Set([correct]);
+      while (opts.size < 4) {
+        let wrong = correct + getRandomInt(-4, 4);
+        if (wrong > 0 && wrong !== correct) opts.add(wrong);
+      }
+      return Array.from(opts).sort(() => Math.random() - 0.5);
+    }
+
+    // เจาะจงสูตรและโจทย์แยกตามแต่ละบทเรียน
+    function generateRandomQuestion(logicId) {
+      let qText = "", ans = 0;
+      switch(logicId) {
+        case 'p1_add_10':
+          let a1 = getRandomInt(1, 9); let b1 = getRandomInt(1, 10 - a1);
+          qText = `${a1} + ${b1} = ?`; ans = a1 + b1; break;
+        case 'p1_sub_10':
+          let a2 = getRandomInt(1, 10); let b2 = getRandomInt(1, a2);
+          qText = `${a2} - ${b2} = ?`; ans = a2 - b2; break;
+        case 'p1_add_20':
+          let a3 = getRandomInt(5, 15); let b3 = getRandomInt(1, 20 - a3);
+          qText = `${a3} + ${b3} = ?`; ans = a3 + b3; break;
+        case 'p2_mul_2_5':
+          let a4 = getRandomInt(2, 5); let b4 = getRandomInt(1, 9);
+          qText = `${a4} × ${b4} = ?`; ans = a4 * b4; break;
+        case 'p2_mul_6_9':
+          let a5 = getRandomInt(6, 9); let b5 = getRandomInt(1, 9);
+          qText = `${a5} × ${b5} = ?`; ans = a5 * b5; break;
+        case 'p2_add_100':
+          let a6 = getRandomInt(10, 80); let b6 = getRandomInt(10, 99 - a6);
+          qText = `${a6} + ${b6} = ?`; ans = a6 + b6; break;
+        case 'p3_div_basic':
+          let b7 = getRandomInt(2, 9); ans = getRandomInt(1, 9);
+          qText = `${b7 * ans} ÷ ${b7} = ?`; break;
+        case 'p3_sub_100':
+          let a8 = getRandomInt(30, 99); let b8 = getRandomInt(10, a8);
+          qText = `${a8} - ${b8} = ?`; ans = a8 - b8; break;
+        case 'p4_mul_2digit':
+          let a9 = getRandomInt(10, 50); let b9 = getRandomInt(2, 9);
+          qText = `${a9} × ${b9} = ?`; ans = a9 * b9; break;
+        case 'p4_div_2digit':
+          let b10 = getRandomInt(2, 9); ans = getRandomInt(10, 40);
+          qText = `${b10 * ans} ÷ ${b10} = ?`; break;
+        case 'p5_frac_basic':
+          let total = getRandomInt(2, 8) * 10; let num = getRandomInt(1, 3);
+          qText = `${num}/4 ของ ${total} = ?`; ans = (num / 4) * total; break;
+        case 'p5_dec_add':
+          let d1 = getRandomInt(1, 50) / 10; let d2 = getRandomInt(1, 50) / 10;
+          qText = `${d1} + ${d2} = ?`; ans = (d1 * 10 + d2 * 10) / 10; break;
+        case 'p6_percent':
+          let percent = getRandomInt(1, 9) * 10; let total2 = getRandomInt(1, 6) * 50;
+          qText = `${percent}% ของ ${total2} = ?`; ans = (percent / 100) * total2; break;
+        case 'p6_equation':
+          ans = getRandomInt(1, 20); let c = getRandomInt(1, 20);
+          qText = `x + ${c} = ${ans + c} (x = ?)`; break;
+        default:
+          qText = `1 + 1 = ?`; ans = 2;
+      }
+      return { q: qText, answer: ans, options: generateOptions(ans) };
+    }
+
+    function loadNextQuestion() {
+      questProgress++;
+      document.getElementById('quest-count').innerText = `ข้อที่ ${questProgress}/5`;
+      document.getElementById('progress-bar').style.width = `${((questProgress - 1) / 5) * 100}%`;
+
+      currentQuestion = generateRandomQuestion(currentLogicId);
+      document.getElementById('question-text').innerText = currentQuestion.q;
+      
+      const container = document.getElementById('options-container');
+      container.innerHTML = '';
+      selectedOption = null;
+      document.getElementById('check-btn').disabled = true;
+      document.getElementById('result-banner').classList.add('hidden');
+
+      currentQuestion.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.innerText = opt;
+        btn.className = 'option-btn p-3.5 rounded-2xl font-bold text-base border-2 border-slate-100 hover:bg-sky-50 border-b-4 border-b-slate-200 transition-all text-slate-600';
+        btn.onclick = () => selectOption(btn, opt);
+        container.appendChild(btn);
+      });
+    }
+
+    function selectOption(btn, value) {
+      document.querySelectorAll('.option-btn').forEach(b => {
+        b.classList.remove('border-sky-300', 'bg-sky-50', 'text-sky-500', 'border-b-sky-400');
+        b.classList.add('border-slate-100', 'text-slate-600');
+      });
+      btn.classList.remove('border-slate-100', 'text-slate-600');
+      btn.classList.add('border-sky-300', 'bg-sky-50', 'text-sky-500', 'border-b-sky-400');
+      selectedOption = value;
+      document.getElementById('check-btn').disabled = false;
+    }
+
+    function checkAnswer() {
+      const banner = document.getElementById('result-banner');
+      const title = document.getElementById('result-title');
+      const detail = document.getElementById('result-detail');
+      const icon = document.getElementById('result-icon');
+      const nextBtn = document.getElementById('next-btn');
+
+      if (selectedOption === currentQuestion.answer) {
+        correctAnswersCount++; currentUser.xp += 10; syncUserData();
+        confetti({ particleCount: 25, spread: 50, origin: { y: 0.8 } });
+        banner.className = "fixed bottom-0 left-0 right-0 p-5 bg-sky-50 border-sky-300 text-sky-800 border-t-4 block";
+        icon.innerText = "☁️"; title.innerText = "ถูกต้องแล้วจ้า!"; detail.innerText = "+10 XP";
+        nextBtn.className = "px-5 py-2.5 bg-sky-400 hover:bg-sky-500 text-white font-bold text-sm rounded-xl shadow-[0_3px_0_#38bdf8]";
+      } else {
+        wrongAnswersCount++;
+        banner.className = "fixed bottom-0 left-0 right-0 p-5 bg-rose-50 border-rose-300 text-rose-800 border-t-4 block";
+        icon.innerText = "🌧️"; title.innerText = "ยังไม่ถูกต้องน้า"; detail.innerText = `เฉลยคือ: ${currentQuestion.answer}`;
+        nextBtn.className = "px-5 py-2.5 bg-rose-400 hover:bg-rose-500 text-white font-bold text-sm rounded-xl shadow-[0_3px_0_#f43f5e]";
+      }
+    }
+
+    function nextQuestion() {
+      if (questProgress >= 5) {
+        let timeDiff = Math.floor((new Date() - startTime) / 1000);
+        let mins = Math.floor(timeDiff / 60), secs = timeDiff % 60;
+        
+        document.getElementById('praise-text').innerText = praiseList[getRandomInt(0, praiseList.length - 1)];
+        document.getElementById('accuracy-stat').innerText = `${Math.round((correctAnswersCount / 5) * 100)}%`;
+        document.getElementById('wrong-stat').innerText = `${wrongAnswersCount} ข้อ`;
+        document.getElementById('time-stat').innerText = `${mins > 0 ? mins + 'm ' : ''}${secs}s`;
+        document.getElementById('quest-xp-earned').innerText = `+${correctAnswersCount * 10} XP`;
+        
+        document.getElementById('complete-avatar').innerText = currentUser.avatar || '👧🏼';
+        document.getElementById('complete-hat').innerText = currentUser.hat || '';
+        document.getElementById('complete-glasses').innerText = currentUser.glasses || '';
+        document.getElementById('complete-item').innerText = currentUser.item || '';
+
+        confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 } });
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('result-banner').classList.add('hidden');
+        document.getElementById('quest-complete-screen').classList.remove('hidden');
+      } else {
+        loadNextQuestion();
+      }
+    }
+  </script>
+</body>
+</html>
