@@ -120,7 +120,7 @@
     <div id="lesson-list-container" class="grid grid-cols-1 gap-3 max-h-[70vh] overflow-y-auto pb-4 pr-1"></div>
   </div>
 
-  <!-- Pet, Gacha, Shop, Leaderboard, Daily Modals -->
+  <!-- Pet Modal -->
   <div id="pet-modal" class="hidden fixed inset-0 modal-overlay flex items-center justify-center p-4 z-50">
     <div class="bg-white max-w-sm w-full p-6 rounded-3xl shadow-2xl text-center border-b-8 border-emerald-100 relative">
       <div class="absolute -top-4 right-4 bg-orange-50 border-2 border-orange-200 px-3 py-1 rounded-full text-xs font-bold text-orange-600 shadow-sm cursor-pointer" onclick="showShop()">🍖 <span id="food-count">0</span> ชิ้น</div>
@@ -135,6 +135,7 @@
     </div>
   </div>
 
+  <!-- Gacha Modal -->
   <div id="gacha-modal" class="hidden fixed inset-0 modal-overlay flex items-center justify-center p-4 z-50">
     <div class="bg-white max-w-xs w-full p-6 rounded-3xl shadow-2xl text-center border-b-8 border-purple-100">
       <div class="text-5xl mb-2 bouncy inline-block">📦</div>
@@ -144,6 +145,7 @@
     </div>
   </div>
 
+  <!-- Shop Modal -->
   <div id="shop-modal" class="hidden fixed inset-0 modal-overlay flex items-center justify-center p-4 z-50">
     <div class="bg-white max-w-sm w-full p-6 rounded-3xl shadow-2xl text-center border-b-8 border-pink-100">
       <h3 class="text-xl font-bold text-pink-500 mb-1">ร้านค้า 🛒</h3>
@@ -153,6 +155,7 @@
     </div>
   </div>
 
+  <!-- Leaderboard Modal -->
   <div id="leaderboard-modal" class="hidden fixed inset-0 modal-overlay flex items-center justify-center p-4 z-50">
     <div class="bg-white max-w-sm w-full p-6 rounded-3xl shadow-2xl text-center border-b-8 border-amber-100">
       <h3 class="text-xl font-bold text-amber-500 mb-4">🏆 กระดานผู้นำ</h3>
@@ -161,7 +164,7 @@
     </div>
   </div>
 
-  <!-- New Daily Quest Modal -->
+  <!-- Daily Quest Modal -->
   <div id="daily-modal" class="hidden fixed inset-0 modal-overlay flex items-center justify-center p-4 z-50">
     <div class="bg-white max-w-sm w-full p-6 rounded-3xl shadow-2xl text-center border-b-8 border-indigo-100">
       <h3 class="text-xl font-bold text-indigo-600 mb-4">📅 ภารกิจประจำวัน</h3>
@@ -198,6 +201,7 @@
     <button onclick="showGradeSelection()" class="w-full py-4 bg-sky-400 text-white font-bold text-base rounded-2xl shadow-[0_4px_0_#38bdf8]">กลับหน้าหลัก 🏡</button>
   </div>
 
+  <!-- Result Banner -->
   <div id="result-banner" class="hidden fixed bottom-0 left-0 right-0 p-5 shadow-2xl transition-all border-t-4 z-40 bg-white">
     <div class="max-w-md mx-auto flex items-center justify-between">
       <div class="flex items-center space-x-3"><span id="result-icon" class="text-3xl"></span><div class="text-left"><h3 id="result-title" class="font-bold text-lg"></h3></div></div>
@@ -231,7 +235,6 @@
       if(!user.evoStones) user.evoStones = { fire: 0, water: 0, leaf: 0 };
       
       const todayStr = getLocalDateString();
-      // ระบบ 3 Daily Quests
       if(!user.daily || user.daily.date !== todayStr || user.daily.q1 === undefined) { 
         user.daily = { 
           date: todayStr,
@@ -252,11 +255,44 @@
     const saveUsersDB = (db) => localStorage.setItem('mathlingo_v4', JSON.stringify(db));
     const syncUserData = () => { if(currentUser) { const db = getUsersDB(); db[currentUser.username] = currentUser; saveUsersDB(db); updateUserUI(); } };
 
-    window.onload = () => { const s = localStorage.getItem('session_v4'); if(s) { const db = getUsersDB(); if(db[s]){ currentUser = ensureUserProps(db[s]); syncUserData(); showGradeSelection(); } } };
+    window.onload = () => { 
+      const s = localStorage.getItem('session_v4'); 
+      if(s) { 
+        const db = getUsersDB(); 
+        if(db[s]){ currentUser = ensureUserProps(db[s]); syncUserData(); showGradeSelection(); } 
+      } else {
+        const cred = JSON.parse(localStorage.getItem('saved_cred') || 'null');
+        if(cred) {
+          document.getElementById('auth-username').value = cred.u;
+          document.getElementById('auth-password').value = cred.p;
+        }
+      }
+    };
 
     function switchAuthTab(m) { authMode = m; document.getElementById('tab-login').className = m === 'login' ? "w-1/2 py-2 rounded-xl text-xs font-bold text-sky-600 bg-white shadow-sm" : "w-1/2 py-2 rounded-xl text-xs font-bold text-slate-400"; document.getElementById('tab-signup').className = m === 'signup' ? "w-1/2 py-2 rounded-xl text-xs font-bold text-sky-600 bg-white shadow-sm" : "w-1/2 py-2 rounded-xl text-xs font-bold text-slate-400"; }
-    function handleAuthSubmit() { const u = document.getElementById('auth-username').value.trim(), p = document.getElementById('auth-password').value.trim(); if(!u || !p) return alert('กรอกข้อมูลให้ครบ!'); const db = getUsersDB(); if(authMode === 'signup') { if(db[u]) return alert('ชื่อนี้มีคนใช้แล้ว!'); db[u] = ensureUserProps({ username: u, password: p }); alert('สมัครสำเร็จ รับ 300 Gems 💎'); } else if(!db[u] || db[u].password !== p) return alert('รหัสผิด!'); currentUser = ensureUserProps(db[u]); localStorage.setItem('session_v4', u); syncUserData(); showGradeSelection(); }
-    function handleLogout() { localStorage.removeItem('session_v4'); currentUser = null; location.reload(); }
+    
+    function handleAuthSubmit() { 
+      const u = document.getElementById('auth-username').value.trim(), p = document.getElementById('auth-password').value.trim(); 
+      if(!u || !p) return alert('กรอกข้อมูลให้ครบ!'); 
+      const db = getUsersDB(); 
+      if(authMode === 'signup') { 
+        if(db[u]) return alert('ชื่อนี้มีคนใช้แล้ว!'); 
+        db[u] = ensureUserProps({ username: u, password: p }); 
+        alert('สมัครสำเร็จ รับ 300 Gems 💎'); 
+      } else if(!db[u] || db[u].password !== p) return alert('รหัสผ่านไม่ถูกต้อง!'); 
+      
+      currentUser = ensureUserProps(db[u]); 
+      localStorage.setItem('session_v4', u); 
+      localStorage.setItem('saved_cred', JSON.stringify({ u, p })); 
+      syncUserData(); 
+      showGradeSelection(); 
+    }
+
+    function handleLogout() { 
+      localStorage.removeItem('session_v4'); 
+      currentUser = null; 
+      location.reload(); 
+    }
 
     function updateUserUI() {
       if(!currentUser) return;
@@ -329,7 +365,6 @@
       currentUser.food--; 
       currentUser.pets[i].exp += 25; 
       
-      // เก็บ Daily Quest Q3 (ป้อนอาหาร 1 ครั้ง)
       if (currentUser.daily.q3.progress < currentUser.daily.q3.target) {
         currentUser.daily.q3.progress++;
       }
@@ -366,28 +401,90 @@
     function showLessons(gk) { document.getElementById('grade-screen').classList.add('hidden'); document.getElementById('lesson-screen').classList.remove('hidden'); document.getElementById('lesson-grade-title').innerText = `ด่าน ${curriculum[gk].title}`; const c = document.getElementById('lesson-list-container'); c.innerHTML = ''; curriculum[gk].lessons.forEach(l => { const btn = document.createElement('button'); btn.onclick = () => { currentLogicId = l.id; questProgress = 0; correctAnswersCount = 0; document.getElementById('level-badge').innerText = l.name; document.getElementById('lesson-screen').classList.add('hidden'); document.getElementById('quiz-screen').classList.remove('hidden'); loadNextQuestion(); }; btn.className = "w-full p-4 bg-white border-2 border-sky-100 border-b-4 hover:border-sky-300 rounded-3xl flex justify-between items-center"; btn.innerHTML = `<div class="flex items-center space-x-4"><span class="text-3xl">${l.icon}</span><span class="font-bold text-slate-600 text-sm">${l.name}</span></div><span class="text-sky-300 font-bold text-xs">เริ่ม ➡️</span>`; c.appendChild(btn); }); }
 
     function generateQuestion(id) {
-      let q, a, x, y;
+      let q, a, x, y, z;
       const ran = (max, min=1) => Math.floor(Math.random()*(max-min+1))+min;
-      if(id.startsWith('p1_count')) { x=ran(20); q=`นับได้เท่าไหร่: ${'🍎'.repeat(x)}`; a=x; }
-      else if(id.startsWith('p1_add')) { x=ran(10); y=ran(10); q=`${x} + ${y} = ?`; a=x+y; }
-      else if(id.startsWith('p1_sub')) { x=ran(20,10); y=ran(x-1); q=`${x} - ${y} = ?`; a=x-y; }
-      else if(id.startsWith('p1_comp')) { x=ran(20); y=ran(20); q=`${x} ... ${y}`; a = x>y?'>':x<y?'<':'='; }
-      else if(id.startsWith('p2_add')) { x=ran(500,100); y=ran(400,100); q=`${x} + ${y} = ?`; a=x+y; }
-      else if(id.startsWith('p2_mul')) { x=ran(9,2); y=ran(9,2); q=`${x} × ${y} = ?`; a=x*y; }
-      else if(id.startsWith('p3_mul2')) { x=ran(99,10); y=ran(9,2); q=`${x} × ${y} = ?`; a=x*y; }
-      else if(id.startsWith('p4_frac')) { x=ran(4); y=ran(4); q=`${x}/10 + ${y}/10 = ?/10`; a=x+y; }
-      else if(id.startsWith('p5_dec_add')) { x=(ran(999)/100).toFixed(2); y=(ran(500)/100).toFixed(2); q=`${x} + ${y} = ?`; a=(parseFloat(x)+parseFloat(y)).toFixed(2); }
-      else if(id.startsWith('p6_eq')) { x=ran(10); y=ran(20,5); q=`a + ${x} = ${x+y}, a คือ?`; a=y; }
+      
+      // ป.1
+      if(id === 'p1_count') { x=ran(15,3); const emojis = ['🍎','🐶','🚗','⭐','🍓']; let e = emojis[ran(4,0)]; q=`นับจำนวน: ${e.repeat(x)}`; a=x; }
+      else if(id === 'p1_add') { x=ran(15); y=ran(15); q=`${x} + ${y} = ?`; a=x+y; }
+      else if(id === 'p1_sub') { x=ran(20,5); y=ran(x,0); q=`${x} - ${y} = ?`; a=x-y; }
+      else if(id === 'p1_compare') { x=ran(50); y=ran(50); q=`${x} ___ ${y}`; a = x>y?'>':x<y?'<':'='; }
+      
+      // ป.2
+      else if(id === 'p2_add') { x=ran(500,50); y=ran(499,50); q=`${x} + ${y} = ?`; a=x+y; }
+      else if(id === 'p2_sub') { x=ran(999,100); y=ran(x,10); q=`${x} - ${y} = ?`; a=x-y; }
+      else if(id === 'p2_mul') { x=ran(12,2); y=ran(12,2); q=`${x} × ${y} = ?`; a=x*y; }
+      else if(id === 'p2_div') { y=ran(12,2); a=ran(12,2); x=a*y; q=`${x} ÷ ${y} = ?`; }
+      
+      // ป.3
+      else if(id === 'p3_add') { x=ran(50000,10000); y=ran(49999,1000); q=`${x} + ${y} = ?`; a=x+y; }
+      else if(id === 'p3_mul2') { x=ran(99,10); y=ran(9,2); q=`${x} × ${y} = ?`; a=x*y; }
+      else if(id === 'p3_div2') { y=ran(9,2); a=ran(99,11); x=a*y; q=`${x} ÷ ${y} = ?`; }
+      else if(id === 'p3_time') { x=ran(12,1); y=ran(11,0)*5; q=`${x} ชั่วโมง ${y} นาที = ? นาที`; a=(x*60)+y; }
+      
+      // ป.4
+      else if(id === 'p4_frac') { x=ran(5,1); y=ran(5,1); z=ran(12,7); q=`${x}/${z} + ${y}/${z} = ?/${z}`; a=x+y; }
+      else if(id === 'p4_dec') { x=(ran(999,100)/100).toFixed(2); y=(ran(500,10)/100).toFixed(2); q=`${x} + ${y} = ?`; a=(parseFloat(x)+parseFloat(y)).toFixed(2); }
+      else if(id === 'p4_angle') { x=ran(3,0); const angles = [{q:'มุมที่น้อยกว่า 90°',a:'มุมแหลม'},{q:'มุม 90° พอดี',a:'มุมฉาก'},{q:'มุมที่มากกว่า 90°',a:'มุมป้าน'},{q:'มุม 180° พอดี',a:'มุมตรง'}]; q=angles[x].q; a=angles[x].a; }
+      else if(id === 'p4_area') { x=ran(12,3); y=ran(12,3); q=`สี่เหลี่ยมกว้าง ${x} ยาว ${y} มีพื้นที่เท่าใด?`; a=x*y; }
+      
+      // ป.5
+      else if(id === 'p5_frac_mul') { x=ran(5,1); y=ran(5,1); z=ran(9,2); let w=ran(9,2); q=`(${x}/${z}) × (${y}/${w}) = ?/(${z*w})`; a=x*y; }
+      else if(id === 'p5_dec_add') { x=(ran(999,100)/100).toFixed(2); y=(ran(500,10)/100).toFixed(2); q=`${x} - ${y} = ?`; a=(parseFloat(x)-parseFloat(y)).toFixed(2); }
+      else if(id === 'p5_percent') { x=ran(9,1)*10; y=ran(20,2)*10; q=`${x}% ของ ${y} คือเท่าใด?`; a=(x/100)*y; }
+      else if(id === 'p5_vol') { x=ran(10,2); y=ran(10,2); z=ran(10,2); q=`กล่องกว้าง ${x} ยาว ${y} สูง ${z} มีปริมาตร?`; a=x*y*z; }
+      
+      // ป.6
+      else if(id === 'p6_eq') { a=ran(20,2); y=ran(20,2); x=a+y; q=`k + ${y} = ${x} , k มีค่าเท่าใด?`; }
+      else if(id === 'p6_ratio') { x=ran(5,2); y=ran(5,2); let m=ran(5,2); q=`อัตราส่วน ${x}:${y} เท่ากับ ${x*m}:?`; a=y*m; }
+      else if(id === 'p6_lcm') { let base=ran(5,2); x=base*ran(3,1); y=base*ran(5,2); q=`ห.ร.ม. ของ ${x} และ ${y} คือ?`; let gcd = (u, v) => v === 0 ? u : gcd(v, u % v); a = gcd(x,y); }
+      else if(id === 'p6_circle') { let r=ran(7,1)*7; q=`พื้นที่วงกลม รัศมี ${r} (π≈22/7)`; a=22*(r/7)*r; }
+      
       else { q=`10 + 10 = ?`; a=20; }
       
-      let opts = new Set([a]);
-      if(typeof a === 'number') { while(opts.size<4) opts.add(a + (ran(10,-10)||1)); }
-      else if (a === '>' || a === '<' || a === '=') { opts = new Set(['>','<','=']); }
-      else { while(opts.size<4) opts.add((parseFloat(a) + (ran(5,-5)/10)).toFixed(2)); }
-      return { q, a, o: Array.from(opts).sort(() => Math.random() - 0.5) };
+      let opts = new Set([String(a)]);
+      if(id === 'p1_compare') { opts = new Set(['>','<','=']); }
+      else if(id === 'p4_angle') { opts = new Set(['มุมแหลม','มุมฉาก','มุมป้าน','มุมตรง']); }
+      else {
+        let maxAttempts = 20;
+        while(opts.size < 4 && maxAttempts > 0) {
+          maxAttempts--;
+          if(typeof a === 'number' || !isNaN(parseFloat(a))) {
+            let numA = parseFloat(a);
+            let isDec = a.toString().includes('.');
+            let fakeNum = numA + (ran(10,-10) || 1);
+            if(isDec) fakeNum = (numA + (ran(15,-15)/10)).toFixed(2);
+            opts.add(String(fakeNum));
+          }
+        }
+      }
+      return { q, a: String(a), o: Array.from(opts).sort(() => Math.random() - 0.5) };
     }
 
-    function loadNextQuestion() { questProgress++; document.getElementById('quest-count').innerText = `ข้อ ${questProgress}/5`; document.getElementById('progress-bar').style.width = `${((questProgress-1)/5)*100}%`; currentQuestion = generateQuestion(currentLogicId); document.getElementById('question-text').innerText = currentQuestion.q; const c = document.getElementById('options-container'); c.innerHTML = ''; document.getElementById('check-btn').disabled = true; document.getElementById('result-banner').classList.add('hidden'); currentQuestion.o.forEach(opt => { const btn = document.createElement('button'); btn.innerText = opt; btn.className = 'option-btn p-3.5 rounded-2xl font-bold text-base border-2 border-slate-100 text-slate-600'; btn.onclick = () => { document.querySelectorAll('.option-btn').forEach(b => b.className = 'option-btn p-3.5 rounded-2xl font-bold text-base border-2 border-slate-100 text-slate-600'); btn.className = 'option-btn p-3.5 rounded-2xl font-bold text-base border-2 border-sky-300 bg-sky-50 text-sky-500'; selectedOption = opt; document.getElementById('check-btn').disabled = false; }; c.appendChild(btn); }); }
+    function loadNextQuestion() { 
+      questProgress++; 
+      document.getElementById('quest-count').innerText = `ข้อ ${questProgress}/5`; 
+      document.getElementById('progress-bar').style.width = `${((questProgress-1)/5)*100}%`; 
+      currentQuestion = generateQuestion(currentLogicId); 
+      document.getElementById('question-text').innerText = currentQuestion.q; 
+      const c = document.getElementById('options-container'); 
+      c.innerHTML = ''; 
+      document.getElementById('check-btn').disabled = true; 
+      document.getElementById('result-banner').classList.add('hidden'); 
+      
+      currentQuestion.o.forEach(opt => { 
+        const btn = document.createElement('button'); 
+        btn.innerText = opt; 
+        btn.className = 'option-btn p-3.5 rounded-2xl font-bold text-base border-2 border-slate-100 text-slate-600'; 
+        btn.onclick = () => { 
+          document.querySelectorAll('.option-btn').forEach(b => b.className = 'option-btn p-3.5 rounded-2xl font-bold text-base border-2 border-slate-100 text-slate-600'); 
+          btn.className = 'option-btn p-3.5 rounded-2xl font-bold text-base border-2 border-sky-300 bg-sky-50 text-sky-500'; 
+          selectedOption = opt; 
+          document.getElementById('check-btn').disabled = false; 
+        }; 
+        c.appendChild(btn); 
+      }); 
+    }
 
     function checkAnswer() { 
       const r = document.getElementById('result-banner'), t = document.getElementById('result-title'), i = document.getElementById('result-icon'); 
@@ -397,7 +494,6 @@
         correctAnswersCount++; 
         currentUser.xp+=10; 
         
-        // เก็บ Daily Quest Q1 (ตอบถูกสะสม)
         if (currentUser.daily.q1.progress < currentUser.daily.q1.target) {
           currentUser.daily.q1.progress++;
         }
@@ -413,8 +509,6 @@
 
     function nextQuestion() {
       if(questProgress >= 5) {
-        
-        // เก็บ Daily Quest Q2 (เล่นจบด่าน)
         if (currentUser.daily.q2.progress < currentUser.daily.q2.target) {
           currentUser.daily.q2.progress++;
         }
