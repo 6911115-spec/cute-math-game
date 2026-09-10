@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MathLingo - Ultimate Edition v5.4 (Wardrobe Update)</title>
+  <title>MathLingo - Ultimate Edition v5.4 (Wardrobe Update + FX)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Mitr:wght@400;600&display=swap" rel="stylesheet">
@@ -14,6 +14,16 @@
     .modal-overlay { background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); }
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+    /* Shake Animation */
+    .shake-effect {
+      animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+    }
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-2px, 0, 0); }
+      20%, 80% { transform: translate3d(4px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+      40%, 60% { transform: translate3d(6px, 0, 0); }
+    }
   </style>
 </head>
 <body class="bg-sky-50 min-h-screen flex flex-col justify-between select-none">
@@ -238,8 +248,46 @@
   </div>
 
   <script>
+    // --- Audio & Visual Effects System ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      
+      osc.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      
+      if (type === 'correct') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.15);
+      } else if (type === 'wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.2);
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.25);
+      }
+    }
+
+    function triggerShake() {
+      const qScreen = document.getElementById('quiz-screen');
+      qScreen.classList.remove('shake-effect');
+      void qScreen.offsetWidth;
+      qScreen.classList.add('shake-effect');
+    }
+
+    // --- Main Game Variables ---
     let authMode = 'login', currentUser = null, currentLogicId = '', currentDifficulty = 'easy', currentHearts = 3, currentQuestion = null, selectedOption = null, questProgress = 0, correctAnswersCount = 0, questionsThisRound = [];
-    let currentWardrobeTab = 'hat'; // Tab เริ่มต้นของห้องแต่งตัว
+    let currentWardrobeTab = 'hat'; 
 
     const curriculum = {
       p1: { title: "ป.1", lessons: [ { id: 'add', name: 'การบวก', icon: '➕' }, { id: 'sub', name: 'การลบ', icon: '➖' }, { id: 'count', name: 'การนับเลข', icon: '🔢' }, { id: 'compare', name: 'เปรียบเทียบ', icon: '⚖️' }] },
@@ -258,19 +306,13 @@
       { id: 'pet_food', icon: '🍖', name: 'อาหารมอนสเตอร์', price: 20 } 
     ];
 
-    // --- อัปเกรดฐานข้อมูล WARDROBE ---
     const WARDROBE_ITEMS = {
-      // หมวก (Hat) - ใช้คราฟต์
       hat_wizard: { id: 'hat_wizard', type: 'hat', icon: '🧙‍♂️', name: 'หมวกจอมเวท', buff: 'xp', desc: 'EXP +20%', craftCost: 5 },
       hat_detective: { id: 'hat_detective', type: 'hat', icon: '🕵️', name: 'หมวกนักสืบ', buff: 'hint', desc: 'เพิ่มโอกาสได้คำใบ้', craftCost: 5 },
       hat_king: { id: 'hat_king', type: 'hat', icon: '👑', name: 'มงกุฎราชา', buff: 'gem', desc: 'ได้รับ Gems เพิ่ม', craftCost: 15 },
-      
-      // ตัวละคร/ใบหน้า (Face) - ใช้เพชรซื้อ
       face_boy: { id: 'face_boy', type: 'face', icon: '👦🏻', name: 'เด็กผู้ชาย', desc: 'เปลี่ยนตัวละคร', price: 100 },
       face_cat: { id: 'face_cat', type: 'face', icon: '🐱', name: 'หน้าน้องแมว', desc: 'เหมียว เหมียว~', price: 150 },
       face_robot: { id: 'face_robot', type: 'face', icon: '🤖', name: 'หุ่นยนต์', desc: 'ไซบอร์กสุดเท่', price: 200 },
-      
-      // แว่นตา/เครื่องประดับ (Accessory) - ใช้คราฟต์
       acc_glass: { id: 'acc_glass', type: 'accessory', icon: '🕶️', name: 'แว่นตาดำ', desc: 'โคตรคูล', craftCost: 10 },
       acc_nerd: { id: 'acc_nerd', type: 'accessory', icon: '👓', name: 'แว่นเด็กเรียน', desc: 'ดูฉลาดขึ้น 50%', craftCost: 5 }
     };
@@ -295,12 +337,9 @@
       if(user.blindBoxes === undefined) user.blindBoxes = 0;
       if(user.materials === undefined) user.materials = 0;
       if(!user.evoStones) user.evoStones = { fire: 0, water: 0, leaf: 0 };
-      
-      // --- อัปเกรด Inventory ของผู้เล่น ---
       if(!user.inventory) user.inventory = { hats: [], faces: [], accessories: [] };
-      if(!user.inventory.faces) user.inventory.faces = []; // กันเซฟเก่าพัง
+      if(!user.inventory.faces) user.inventory.faces = []; 
       if(!user.inventory.accessories) user.inventory.accessories = [];
-      
       if(!user.equipped) user.equipped = { hat: null, face: null, accessory: null };
       if(user.equipped.face === undefined) user.equipped.face = null;
       if(user.equipped.accessory === undefined) user.equipped.accessory = null;
@@ -354,7 +393,6 @@
       document.getElementById('header-league-text').innerText = currentUser.xp >= 1000 ? '🥈 Silver' : '🥉 Bronze';
       document.getElementById('gacha-badge').className = currentUser.blindBoxes > 0 ? "absolute -top-1 -right-1 w-3 h-3 bg-rose-500 rounded-full border-2 border-white" : "hidden";
       
-      // --- อัปเดตเลเยอร์อวตารผู้เล่น ---
       const faceEl = document.getElementById('avatar-display');
       faceEl.innerText = currentUser.equipped.face ? WARDROBE_ITEMS[currentUser.equipped.face].icon : '👧🏼';
 
@@ -367,12 +405,10 @@
     
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-    // --- อัปเกรด: ระบบห้องแต่งตัว ---
     function showWardrobe(tab = null) {
       if(tab) currentWardrobeTab = tab;
       document.getElementById('wardrobe-mats').innerText = currentUser.materials + " 🧵 | " + currentUser.gems + " 💎";
       
-      // พรีวิวตัวละคร
       document.getElementById('wardrobe-avatar').innerText = currentUser.equipped.face ? WARDROBE_ITEMS[currentUser.equipped.face].icon : '👧🏼';
       const hp = document.getElementById('wardrobe-hat-preview');
       if(currentUser.equipped.hat) { hp.innerText = WARDROBE_ITEMS[currentUser.equipped.hat].icon; hp.classList.remove('hidden'); } else hp.classList.add('hidden');
@@ -381,7 +417,6 @@
       
       const c = document.getElementById('wardrobe-items-container'); c.innerHTML = '';
       
-      // กรองเฉพาะหมวดหมู่ที่เลือก
       Object.values(WARDROBE_ITEMS).filter(i => i.type === currentWardrobeTab).forEach(item => {
         let owned = false;
         let equipped = false;
@@ -429,7 +464,6 @@
       syncUserData(); showWardrobe();
     }
 
-    // --- Daily Quest System ---
     function showDailyQuest() {
       document.getElementById('daily-modal-title').innerText = `📅 ภารกิจประจำวัน (Wave ${currentUser.daily.wave})`;
       document.getElementById('daily-quest-title').innerText = `📅 ภารกิจประจำวัน (Wave ${currentUser.daily.wave})`;
@@ -594,6 +628,7 @@
       document.getElementById('check-btn').disabled = true; 
       
       if(selectedOption == currentQuestion.a) { 
+        playSound('correct');
         correctAnswersCount++; 
         let baseXP = 10;
         if(currentDifficulty === 'medium') baseXP = 15; if(currentDifficulty === 'hard') baseXP = 20;
@@ -604,6 +639,8 @@
 
         r.className = "fixed bottom-0 left-0 right-0 p-5 bg-sky-50 border-sky-300 text-sky-800 border-t-4 block z-40"; i.innerText="☁️"; t.innerText="ถูกต้อง!"; 
       } else { 
+        playSound('wrong');
+        triggerShake();
         if(currentDifficulty === 'hard') { currentHearts--; updateHeartsUI(); }
         r.className="fixed bottom-0 left-0 right-0 p-5 bg-rose-50 border-rose-300 text-rose-800 border-t-4 block z-40"; i.innerText="🌧️"; t.innerText=`เฉลยคือ: ${currentQuestion.a}`; 
       } 
@@ -686,3 +723,4 @@
   </script>
 </body>
 </html>
+
