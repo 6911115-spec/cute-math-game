@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MathLingo Quest - Multi-Chapter Edition</title>
+  <title>MathLingo Quest - Cute Dress-Up Edition</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Mitr:wght@400;600&display=swap" rel="stylesheet">
@@ -32,9 +32,13 @@
   <!-- Main Header -->
   <header id="main-header" class="hidden max-w-md mx-auto w-full p-4 flex justify-between items-center bg-white/90 backdrop-blur-md shadow-sm rounded-b-3xl border-b-2 border-sky-100 relative z-30">
     <div class="flex items-center space-x-2">
-      <div class="w-12 h-12 bg-sky-100 rounded-2xl flex items-center justify-center border-2 border-sky-200 cursor-pointer hover:bg-sky-200 transition-all relative" onclick="openWardrobeModal()">
-        <span id="avatar-display" class="text-2xl">👧🏼</span>
-        <span id="header-pet-display" class="text-xs absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 border border-sky-200 shadow-sm">🐶</span>
+      <div class="w-14 h-14 bg-pink-50 rounded-2xl flex items-center justify-center border-2 border-pink-200 cursor-pointer hover:bg-pink-100 transition-all relative overflow-hidden" onclick="openDressUpModal()">
+        <div id="header-avatar-combo" class="relative text-2xl flex items-center justify-center">
+          <span id="h-base">👧🏼</span>
+          <span id="h-hat" class="absolute -top-2 text-xs">🎀</span>
+          <span id="h-acc" class="absolute -right-2 top-2 text-xs">🪄</span>
+        </div>
+        <span id="header-pet-display" class="text-[10px] absolute bottom-0.5 right-0.5 bg-white rounded-full p-0.5 border border-pink-200 shadow-sm">🐶</span>
       </div>
       <div>
         <div class="flex items-center space-x-1">
@@ -63,7 +67,7 @@
   <div id="auth-screen" class="max-w-md mx-auto w-full p-6 my-auto text-center bg-white rounded-3xl shadow-xl border-b-8 border-sky-100">
     <div class="text-5xl mb-2 bouncy inline-block">✨</div>
     <h1 class="text-2xl font-bold text-sky-800 mb-1">MathLingo Quest</h1>
-    <p class="text-xs text-sky-400 mb-4">ผจญภัยคณิตศาสตร์ พร้อมบทเรียนหลากหลาย!</p>
+    <p class="text-xs text-sky-400 mb-4">ผจญภัยคณิตศาสตร์ พร้อมระบบแต่งตัวสุดน่ารัก!</p>
 
     <div class="flex bg-sky-50 p-1 rounded-2xl mb-5 border border-sky-100">
       <button id="tab-login-btn" onclick="switchAuthTab('login')" class="flex-1 py-2 font-bold text-xs rounded-xl transition-all bg-white text-sky-600 shadow-sm">เข้าสู่ระบบ</button>
@@ -88,8 +92,8 @@
         <div class="flex justify-center space-x-2 mb-2">
           <button type="button" onclick="selectRegAvatar('👧🏼')" class="reg-avatar-option p-2 bg-sky-50 border-2 border-sky-300 rounded-2xl text-2xl hover:scale-110 transition-transform">👧🏼</button>
           <button type="button" onclick="selectRegAvatar('👦🏼')" class="reg-avatar-option p-2 bg-sky-50 border-2 border-transparent rounded-2xl text-2xl hover:scale-110 transition-transform">👦🏼</button>
-          <button type="button" onclick="selectRegAvatar('🦸‍♂️')" class="reg-avatar-option p-2 bg-sky-50 border-2 border-transparent rounded-2xl text-2xl hover:scale-110 transition-transform">🦸‍♂️</button>
-          <button type="button" onclick="selectRegAvatar('🧙‍♂️')" class="reg-avatar-option p-2 bg-sky-50 border-2 border-transparent rounded-2xl text-2xl hover:scale-110 transition-transform">🧙‍♂️</button>
+          <button type="button" onclick="selectRegAvatar('🐰')" class="reg-avatar-option p-2 bg-sky-50 border-2 border-transparent rounded-2xl text-2xl hover:scale-110 transition-transform">🐰</button>
+          <button type="button" onclick="selectRegAvatar('🐱')" class="reg-avatar-option p-2 bg-sky-50 border-2 border-transparent rounded-2xl text-2xl hover:scale-110 transition-transform">🐱</button>
         </div>
       </div>
       <div>
@@ -108,13 +112,16 @@
   <div id="grade-screen" class="hidden max-w-md mx-auto w-full p-4 my-auto text-center">
     <!-- Top Action Grid -->
     <div class="grid grid-cols-4 gap-2 mb-3">
-      <button onclick="openPetModal()" class="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-2xl text-[11px] font-bold transition-all border border-emerald-200 flex flex-col items-center relative"><span class="text-2xl mb-1">🐾</span>สัตว์เลี้ยง</button>
+      <button onclick="openPetModal()" class="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-2xl text-[11px] font-bold transition-all border border-emerald-200 flex flex-col items-center"><span class="text-2xl mb-1">🐾</span>สัตว์เลี้ยง</button>
       <button onclick="openDailyQuestModal()" class="p-2 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-2xl text-[11px] font-bold transition-all border border-amber-200 flex flex-col items-center relative">
         <span class="text-2xl mb-1">📋</span>ภารกิจวัน
         <span id="quest-badge" class="hidden absolute top-1 right-1 w-2.5 h-2.5 bg-rose-500 rounded-full"></span>
       </button>
-      <button onclick="openWardrobeModal()" class="p-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-2xl text-[11px] font-bold transition-all border border-indigo-200 flex flex-col items-center"><span class="text-2xl mb-1">👗</span>แต่งตัว</button>
-      <button onclick="openShopModal()" class="p-2 bg-pink-50 hover:bg-pink-100 text-pink-600 rounded-2xl text-[11px] font-bold transition-all border border-pink-200 flex flex-col items-center"><span class="text-2xl mb-1">🛒</span>ร้านค้า</button>
+      <button onclick="openDressUpModal()" class="p-2 bg-pink-50 hover:bg-pink-100 text-pink-600 rounded-2xl text-[11px] font-bold transition-all border border-pink-200 flex flex-col items-center relative">
+        <span class="text-2xl mb-1">🎀</span>แต่งตัว
+        <span class="absolute -top-1 -right-1 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">Cute!</span>
+      </button>
+      <button onclick="openShopModal()" class="p-2 bg-purple-50 hover:bg-purple-100 text-purple-600 rounded-2xl text-[11px] font-bold transition-all border border-purple-200 flex flex-col items-center"><span class="text-2xl mb-1">🛒</span>ร้านค้า</button>
     </div>
 
     <!-- Banner Arena & Gacha -->
@@ -124,7 +131,7 @@
         <span class="text-xl">👾</span>
       </button>
       <button onclick="openGachaModal()" class="p-3 bg-gradient-to-r from-purple-400 to-indigo-500 text-white font-bold rounded-2xl shadow-sm hover:opacity-95 transition-all flex items-center justify-between">
-        <div class="text-left"><div class="text-xs">🎁 ตู้สุ่มโชคดี</div><div class="text-[9px] opacity-80">สุ่มสัตว์/ชุด</div></div>
+        <div class="text-left"><div class="text-xs">🎁 ตู้สุ่มโชคดี</div><div class="text-[9px] opacity-80">สุ่มสัตว์/ไอเทม</div></div>
         <span class="text-xl">✨</span>
       </button>
     </div>
@@ -140,20 +147,15 @@
     </div>
   </div>
 
-  <!-- Chapter Selection Screen (NEW) -->
+  <!-- Chapter Selection Screen -->
   <div id="chapter-screen" class="hidden max-w-md mx-auto w-full p-4 my-auto text-center">
     <div class="flex items-center justify-between mb-3 bg-white p-3 rounded-2xl border border-sky-100 shadow-sm">
       <button onclick="showScreen('grade-screen')" class="text-xs font-bold text-sky-600 hover:text-sky-800 bg-sky-50 px-3 py-1.5 rounded-xl border border-sky-200">← เปลี่ยนชั้นเรียน</button>
       <span id="chapter-grade-title" class="font-bold text-sky-800 text-xs">ระดับชั้น ป.1</span>
     </div>
 
-    <h3 class="text-base font-bold text-sky-800 mb-3 text-left px-1 flex items-center justify-between">
-      <span>เลือกบททดสอบ / บทเรียน 📚</span>
-    </h3>
-
-    <div id="chapter-list-container" class="space-y-3 pb-6">
-      <!-- Generated via JS -->
-    </div>
+    <h3 class="text-base font-bold text-sky-800 mb-3 text-left px-1">เลือกบททดสอบ / บทเรียน 📚</h3>
+    <div id="chapter-list-container" class="space-y-3 pb-6"></div>
   </div>
 
   <!-- Difficulty Modal -->
@@ -161,7 +163,7 @@
     <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center relative border-b-8 border-sky-200">
       <div class="text-4xl mb-2">🎯</div>
       <h3 class="font-bold text-base text-sky-800 mb-1" id="diff-modal-title">เลือกระดับความยาก</h3>
-      <p class="text-[11px] text-slate-400 mb-4" id="diff-modal-subtitle">บทที่ 1: การบวกจำนวน</p>
+      <p class="text-[11px] text-slate-400 mb-4" id="diff-modal-subtitle">บทเรียน</p>
 
       <div class="space-y-2.5 mb-5">
         <button onclick="startMathQuiz('ง่าย')" class="w-full p-3 bg-emerald-50 hover:bg-emerald-100 border-2 border-emerald-200 rounded-2xl flex items-center justify-between transition-all">
@@ -188,7 +190,7 @@
   <div id="quiz-screen" class="hidden max-w-md mx-auto w-full p-6 bg-white rounded-3xl shadow-xl my-auto text-center border-b-8 border-sky-100 relative">
     <div class="flex justify-between items-center mb-3">
       <button onclick="showScreen('chapter-screen')" class="text-xs font-bold text-slate-400 hover:text-slate-600">✕ ออก</button>
-      <span id="quiz-grade-tag" class="text-[10px] font-bold bg-sky-100 text-sky-600 px-3 py-1 rounded-full">ป.1 - บทที่ 1 (ง่าย)</span>
+      <span id="quiz-grade-tag" class="text-[10px] font-bold bg-sky-100 text-sky-600 px-3 py-1 rounded-full">ป.1</span>
     </div>
     <div class="text-xs font-bold text-slate-400 mb-2" id="quiz-progress">ข้อที่ 1 / 5</div>
     <div class="text-xl font-bold text-slate-700 mb-5 bg-sky-50 py-5 px-4 rounded-2xl border-2 border-sky-100 min-h-[90px] flex items-center justify-center" id="quiz-question">1 + 1 = ?</div>
@@ -204,7 +206,7 @@
   <div id="quiz-summary-screen" class="hidden max-w-md mx-auto w-full p-6 bg-white rounded-3xl shadow-xl my-auto text-center border-b-8 border-emerald-200 relative">
     <div class="text-5xl mb-2 bouncy inline-block">🏆</div>
     <h2 class="text-xl font-bold text-slate-800 mb-1">สรุปผลการทำเควส!</h2>
-    <p id="summary-subtitle" class="text-xs text-slate-400 mb-4">ระดับชั้น ป.1 (บทที่ 1)</p>
+    <p id="summary-subtitle" class="text-xs text-slate-400 mb-4">สรุปผล</p>
 
     <div class="bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-3xl p-5 mb-5 shadow-inner">
       <div class="text-4xl font-extrabold text-emerald-600 mb-1" id="summary-score-text">5 / 5</div>
@@ -231,7 +233,7 @@
     </div>
 
     <div class="text-left mb-5">
-      <h4 class="text-xs font-bold text-slate-500 mb-2 px-1">ทบทวนโจทย์ 5 ข้อ:</h4>
+      <h4 class="text-xs font-bold text-slate-500 mb-2 px-1">ทบทวนโจทย์:</h4>
       <div id="summary-review-list" class="space-y-2 max-h-44 overflow-y-auto pr-1"></div>
     </div>
 
@@ -250,7 +252,11 @@
       <div class="flex justify-between items-end bg-emerald-50 border-4 border-sky-200 rounded-2xl p-4 h-48 relative mb-4">
         <div class="text-center relative flex-1">
           <div id="arena-p1-float"></div>
-          <div class="text-5xl filter drop-shadow-md transition-transform" id="arena-p1-avatar">👧🏼</div>
+          <div class="text-5xl filter drop-shadow-md transition-transform relative inline-block" id="arena-p1-avatar-container">
+            <span id="arena-base">👧🏼</span>
+            <span id="arena-hat" class="absolute -top-3 left-1/2 -translate-x-1/2 text-xl">🎀</span>
+            <span id="arena-acc" class="absolute -right-3 top-2 text-xl">🪄</span>
+          </div>
           <div class="font-bold text-slate-700 text-xs mt-1" id="arena-p1-name">ผู้กล้า</div>
           <div class="w-11/12 mx-auto mt-1">
             <div class="bar-bg"><div id="arena-p1-hp" class="bar-fill hp-fill" style="width:100%"></div></div>
@@ -288,7 +294,43 @@
     </div>
   </div>
 
-  <!-- Modal: Pet System -->
+  <!-- NEW MODAL: Cute Dress-Up Studio (ระบบแต่งตัวฟรุ้งฟริ้ง) -->
+  <div id="dressup-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-5 max-w-sm w-full text-center relative border-b-8 border-pink-300 shadow-2xl">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="font-bold text-base text-pink-600 flex items-center space-x-1">
+          <span>✨ ห้องแต่งตัวฟรุ้งฟริ้ง</span>
+        </h3>
+        <button onclick="closeDressUpModal()" class="w-7 h-7 bg-pink-100 text-pink-500 rounded-full font-bold text-xs hover:bg-pink-200">✕</button>
+      </div>
+
+      <!-- Live Preview Display -->
+      <div class="bg-gradient-to-b from-pink-50 via-purple-50 to-sky-50 rounded-2xl p-4 border-2 border-pink-200 mb-3 relative overflow-hidden flex flex-col items-center justify-center min-h-[140px]">
+        <div class="text-[10px] absolute top-2 left-2 bg-white/80 px-2 py-0.5 rounded-full text-pink-500 font-bold border border-pink-100">Live Preview</div>
+        <div class="relative text-6xl my-2 bouncy inline-block drop-shadow-md">
+          <span id="preview-base">👧🏼</span>
+          <span id="preview-hat" class="absolute -top-4 left-1/2 -translate-x-1/2 text-3xl">🎀</span>
+          <span id="preview-acc" class="absolute -right-4 top-2 text-3xl">🪄</span>
+        </div>
+        <div class="text-xs font-bold text-purple-700" id="preview-outfit-name">ชุดเดรสเจ้าหญิง 👗</div>
+      </div>
+
+      <!-- Category Tabs -->
+      <div class="flex bg-pink-50 p-1 rounded-xl mb-3 border border-pink-100 text-[11px] font-bold">
+        <button id="d-tab-base" onclick="switchDressUpTab('base')" class="flex-1 py-1.5 rounded-lg text-pink-600 bg-white shadow-sm">ตัวละคร</button>
+        <button id="d-tab-hat" onclick="switchDressUpTab('hat')" class="flex-1 py-1.5 rounded-lg text-slate-400">หมวก/โบว์</button>
+        <button id="d-tab-outfit" onclick="switchDressUpTab('outfit')" class="flex-1 py-1.5 rounded-lg text-slate-400">ชุดแต่งกาย</button>
+        <button id="d-tab-acc" onclick="switchDressUpTab('acc')" class="flex-1 py-1.5 rounded-lg text-slate-400">ไอเทมถือ</button>
+      </div>
+
+      <!-- Wardrobe Grid -->
+      <div id="dressup-item-grid" class="grid grid-cols-3 gap-2 mb-4 max-h-48 overflow-y-auto pr-1"></div>
+
+      <button onclick="closeDressUpModal()" class="w-full py-2.5 bg-pink-400 hover:bg-pink-500 text-white font-bold text-xs rounded-xl shadow-[0_4px_0_#f472b6] transition-all">เสร็จสิ้นการแต่งตัว ✨</button>
+    </div>
+  </div>
+
+  <!-- Other Modals -->
   <div id="pet-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center relative border-b-8 border-emerald-200">
       <h3 class="font-bold text-lg text-emerald-800 mb-1">🐾 สัตว์เลี้ยงคู่ใจ</h3>
@@ -327,46 +369,27 @@
     </div>
   </div>
 
-  <!-- Modal: Daily Quests -->
   <div id="daily-quest-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center relative border-b-8 border-amber-200">
       <div class="text-4xl mb-1">📋</div>
       <h3 class="font-bold text-lg text-amber-800 mb-1">ภารกิจประจำวัน</h3>
       <p class="text-xs text-slate-400 mb-4">ทำภารกิจให้ครบเพื่อรับเพชร 💎 และ EXP ฟรี!</p>
-
       <div id="daily-quest-container" class="space-y-3 mb-5 max-h-60 overflow-y-auto pr-1"></div>
-
       <button onclick="closeDailyQuestModal()" class="w-full py-2.5 bg-slate-200 text-slate-600 font-bold text-xs rounded-xl">ปิดหน้าต่าง</button>
     </div>
   </div>
 
-  <!-- Wardrobe, Shop, Gacha, General Modals -->
-  <div id="wardrobe-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center relative border-b-8 border-indigo-200">
-      <h3 class="font-bold text-lg text-indigo-800 mb-1">👗 ตู้เสื้อผ้าผู้กล้า</h3>
-      <p class="text-xs text-slate-400 mb-4">เลือกชุดตัวละครที่คุณต้องการใช้งาน</p>
-      <div class="grid grid-cols-4 gap-3 mb-6" id="wardrobe-grid"></div>
-      <button onclick="closeWardrobeModal()" class="w-full py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-xl shadow-md">ปิดหน้าต่าง</button>
-    </div>
-  </div>
-
   <div id="shop-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center relative border-b-8 border-pink-200">
-      <h3 class="font-bold text-lg text-pink-800 mb-1">🛒 ร้านค้าแลกเปลี่ยน</h3>
+    <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center relative border-b-8 border-purple-200">
+      <h3 class="font-bold text-lg text-purple-800 mb-1">🛒 ร้านค้าแลกเปลี่ยน</h3>
       <p class="text-xs text-slate-400 mb-4">ใช้ 💎 เพชรของคุณซื้อไอเทมพัฒนาตัวละคร</p>
       <div class="space-y-3 mb-6">
         <div class="flex justify-between items-center bg-pink-50 p-3 rounded-2xl border border-pink-100">
-          <div class="text-left">
-            <div class="font-bold text-slate-700 text-xs">🍖 อาหารสัตว์เลี้ยง x5</div>
-            <div class="text-[10px] text-slate-400">ใช้เพิ่มความอิ่มสัตว์เลี้ยง</div>
-          </div>
+          <div class="text-left"><div class="font-bold text-slate-700 text-xs">🍖 อาหารสัตว์เลี้ยง x5</div><div class="text-[10px] text-slate-400">ใช้เพิ่มความอิ่มสัตว์เลี้ยง</div></div>
           <button onclick="buyShopItem('food')" class="px-3 py-1.5 bg-pink-400 hover:bg-pink-500 text-white font-bold text-xs rounded-xl shadow-sm">10 💎</button>
         </div>
         <div class="flex justify-between items-center bg-amber-50 p-3 rounded-2xl border border-amber-100">
-          <div class="text-left">
-            <div class="font-bold text-slate-700 text-xs">⭐ บูสต์ EXP +50</div>
-            <div class="text-[10px] text-slate-400">เพิ่มค่าประสบการณ์ทันที</div>
-          </div>
+          <div class="text-left"><div class="font-bold text-slate-700 text-xs">⭐ บูสต์ EXP +50</div><div class="text-[10px] text-slate-400">เพิ่มค่าประสบการณ์ทันที</div></div>
           <button onclick="buyShopItem('xp')" class="px-3 py-1.5 bg-amber-400 hover:bg-amber-500 text-white font-bold text-xs rounded-xl shadow-sm">15 💎</button>
         </div>
       </div>
@@ -378,10 +401,10 @@
     <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center relative border-b-8 border-purple-200">
       <div class="text-5xl mb-2 bouncy inline-block">🎁</div>
       <h3 class="font-bold text-lg text-purple-800 mb-1">ตู้สุ่มโชคดี</h3>
-      <p class="text-xs text-slate-400 mb-4">สุ่มลุ้นรับตัวละครใหม่ และรางวัลพิเศษ!</p>
+      <p class="text-xs text-slate-400 mb-4">สุ่มลุ้นรับชุดแต่งกายและรางวัลพิเศษ!</p>
       <div class="bg-purple-50 p-4 rounded-2xl border border-purple-100 mb-6">
         <div class="text-xs text-purple-700 font-bold mb-1">ค่าสุ่มต่อครั้ง: 20 💎</div>
-        <div class="text-[10px] text-slate-400">มีโอกาสได้ตัวละครฉายาพิเศษ 🦊, 🤖, 🦄</div>
+        <div class="text-[10px] text-slate-400">สุ่มลุ้นรับหมวก/โบว์ และชุดสุดลิมิเต็ด</div>
       </div>
       <div class="space-y-2">
         <button onclick="rollGacha()" class="w-full py-3 bg-purple-500 hover:bg-purple-600 text-white font-bold text-sm rounded-xl shadow-md transition-all">✨ หมุนกาชา (20 💎)</button>
@@ -404,15 +427,61 @@
     let selectedRegAvatar = '👧🏼';
     let selectedGradeTarget = 'ป.1';
     let selectedChapter = null;
+    let currentDressUpTab = 'base';
 
-    function saveAccountsToStorage() {
-      localStorage.setItem('mathlingo_accounts', JSON.stringify(accounts));
-    }
+    // 👗 WARDROBE DATABASE (ฐานข้อมูลไอเทมแต่งตัว)
+    const wardrobeItems = {
+      base: [
+        { id: 'b1', emoji: '👧🏼', name: 'สาวน้อยน่ารัก', price: 0 },
+        { id: 'b2', emoji: '👦🏼', name: 'หนุ่มน้อยสดใส', price: 0 },
+        { id: 'b3', emoji: '🐰', name: 'กระต่ายน้อย', price: 20 },
+        { id: 'b4', emoji: '🐱', name: 'เหมียวน้อย', price: 20 },
+        { id: 'b5', emoji: '🦊', name: 'จิ้งจอกแสนซน', price: 30 },
+        { id: 'b6', emoji: '🦄', name: 'ยูนิคอร์นเวทมนตร์', price: 40 }
+      ],
+      hat: [
+        { id: 'h0', emoji: '', name: 'ไม่ใส่หมวก', price: 0 },
+        { id: 'h1', emoji: '🎀', name: 'โบว์สีชมพู', price: 0 },
+        { id: 'h2', emoji: '👑', name: 'มงกุฎทองคำ', price: 25 },
+        { id: 'h3', emoji: '🌸', name: 'ดอกไม้สดใส', price: 15 },
+        { id: 'h4', emoji: '🎓', name: 'หมวกบัณฑิตน้อย', price: 30 },
+        { id: 'h5', emoji: '🎩', name: 'หมวกมายากล', price: 35 }
+      ],
+      outfit: [
+        { id: 'o1', emoji: '👗', name: 'ชุดเดรสเจ้าหญิง', price: 0 },
+        { id: 'o2', emoji: '🎒', name: 'ชุดนักเรียนสดใส', price: 15 },
+        { id: 'o3', emoji: '👘', name: 'กิโมโนญี่ปุ่น', price: 30 },
+        { id: 'o4', emoji: '🥼', name: 'ชุดนักวิทยาศาสตร์', price: 25 },
+        { id: 'o5', emoji: '🦹‍♀️', name: 'ผ้าคลุมฮีโร่', price: 35 }
+      ],
+      acc: [
+        { id: 'a0', emoji: '', name: 'ไม่ถือไอเทม', price: 0 },
+        { id: 'a1', emoji: '🪄', name: 'คทาเวทมนตร์', price: 0 },
+        { id: 'a2', emoji: '🎈', name: 'ลูกโป่งหลากสี', price: 10 },
+        { id: 'a3', emoji: '🧸', name: 'ตุ๊กตาหมีน้อย', price: 20 },
+        { id: 'a4', emoji: '🍦', name: 'ไอศกรีมหวานเย็น', price: 15 },
+        { id: 'a5', emoji: '🎸', name: 'กีตาร์จิ๋ว', price: 30 }
+      ]
+    };
 
-    function saveCurrentUserData() {
-      if (currentUser && currentUser.username) {
-        accounts[currentUser.username] = currentUser;
-        saveAccountsToStorage();
+    function saveAccountsToStorage() { localStorage.setItem('mathlingo_accounts', JSON.stringify(accounts)); }
+    function saveCurrentUserData() { if (currentUser && currentUser.username) { accounts[currentUser.username] = currentUser; saveAccountsToStorage(); } }
+
+    function initUserDefaultData(userObj) {
+      if (!userObj.pet) userObj.pet = { emoji: '🐶', name: 'เจ้าตูบแสนขยัน', level: 1, hunger: 80, happiness: 90 };
+      if (!userObj.food) userObj.food = 5;
+      if (!userObj.dailyQuests) {
+        userObj.dailyQuests = [
+          { id: 'quiz', title: 'ทำเควสคณิตครบ 1 รอบ (5 ข้อ)', target: 1, progress: 0, rewardGem: 10, claimed: false },
+          { id: 'arena', title: 'ประลองมอนสเตอร์ 1 ครั้ง', target: 1, progress: 0, rewardGem: 15, claimed: false },
+          { id: 'pet', title: 'ให้อาหารสัตว์เลี้ยง 1 ครั้ง', target: 1, progress: 0, rewardGem: 5, claimed: false }
+        ];
+      }
+      if (!userObj.wardrobe) {
+        userObj.wardrobe = {
+          equipped: { base: '👧🏼', hat: '🎀', outfit: '👗', acc: '🪄' },
+          unlocked: ['b1', 'b2', 'h0', 'h1', 'o1', 'a0', 'a1']
+        };
       }
     }
 
@@ -425,69 +494,26 @@
       if (mode === 'login') {
         loginBtn.className = "flex-1 py-2 font-bold text-xs rounded-xl transition-all bg-white text-sky-600 shadow-sm";
         regBtn.className = "flex-1 py-2 font-bold text-xs rounded-xl transition-all text-slate-400";
-        loginForm.classList.remove('hidden');
-        regForm.classList.add('hidden');
+        loginForm.classList.remove('hidden'); regForm.classList.add('hidden');
       } else {
         regBtn.className = "flex-1 py-2 font-bold text-xs rounded-xl transition-all bg-white text-emerald-600 shadow-sm";
         loginBtn.className = "flex-1 py-2 font-bold text-xs rounded-xl transition-all text-slate-400";
-        regForm.classList.remove('hidden');
-        loginForm.classList.add('hidden');
+        regForm.classList.remove('hidden'); loginForm.classList.add('hidden');
       }
     }
 
-    function selectRegAvatar(emoji) {
-      selectedRegAvatar = emoji;
-      document.querySelectorAll('.reg-avatar-option').forEach(btn => {
-        if (btn.innerText === emoji) {
-          btn.classList.add('border-sky-300');
-          btn.classList.remove('border-transparent');
-        } else {
-          btn.classList.remove('border-sky-300');
-          btn.classList.add('border-transparent');
-        }
-      });
-    }
-
-    function initUserDefaultData(userObj) {
-      if (!userObj.pet) {
-        userObj.pet = { emoji: '🐶', name: 'เจ้าตูบแสนขยัน', level: 1, hunger: 80, happiness: 90 };
-      }
-      if (!userObj.food) userObj.food = 5;
-      if (!userObj.dailyQuests) {
-        userObj.dailyQuests = [
-          { id: 'quiz', title: 'ทำเควสคณิตครบ 1 รอบ (5 ข้อ)', target: 1, progress: 0, rewardGem: 10, claimed: false },
-          { id: 'arena', title: 'ประลองมอนสเตอร์ 1 ครั้ง', target: 1, progress: 0, rewardGem: 15, claimed: false },
-          { id: 'pet', title: 'ให้อาหารสัตว์เลี้ยง 1 ครั้ง', target: 1, progress: 0, rewardGem: 5, claimed: false }
-        ];
-      }
-    }
+    function selectRegAvatar(emoji) { selectedRegAvatar = emoji; }
 
     function handleRegister() {
       const username = document.getElementById('reg-username').value.trim();
       const password = document.getElementById('reg-password').value;
+      if (!username || !password) { openModal('⚠️ กรอกข้อมูลไม่ครบ', 'กรุณากรอกชื่อผู้กล้าและรหัสผ่าน'); return; }
+      if (accounts[username]) { openModal('⚠️ ชื่อนี้ถูกใช้แล้ว', 'ชื่อผู้กล้านี้มีอยู่ในระบบแล้ว'); return; }
 
-      if (!username || !password) {
-        openModal('⚠️ กรอกข้อมูลไม่ครบ', 'กรุณากรอกชื่อผู้กล้าและรหัสผ่าน');
-        return;
-      }
-
-      if (accounts[username]) {
-        openModal('⚠️ ชื่อนี้ถูกใช้แล้ว', 'ชื่อผู้กล้านี้มีอยู่ในระบบแล้ว');
-        return;
-      }
-
-      accounts[username] = {
-        username: username,
-        password: password,
-        avatar: selectedRegAvatar,
-        xp: 0,
-        gems: 50,
-        food: 5,
-        streak: 1,
-        unlockedAvatars: ['👧🏼', '👦🏼', '🦸‍♂️', '🧙‍♂️']
-      };
-
+      accounts[username] = { username, password, xp: 0, gems: 50, food: 5, streak: 1 };
       initUserDefaultData(accounts[username]);
+      accounts[username].wardrobe.equipped.base = selectedRegAvatar;
+
       saveAccountsToStorage();
       currentUser = accounts[username];
       openModal('🎉 สมัครสมาชิกสำเร็จ!', `ยินดีต้อนรับผู้กล้า ${username}!`);
@@ -497,30 +523,21 @@
     function handleLogin() {
       const username = document.getElementById('login-username').value.trim();
       const password = document.getElementById('login-password').value;
-
       const acc = accounts[username];
-      if (!acc || acc.password !== password) {
-        openModal('⚠️ เข้าสู่ระบบไม่สำเร็จ', 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
-        return;
-      }
+      if (!acc || acc.password !== password) { openModal('⚠️ เข้าสู่ระบบไม่สำเร็จ', 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'); return; }
 
       currentUser = acc;
       initUserDefaultData(currentUser);
       showScreen('grade-screen');
     }
 
-    function handleLogout() {
-      saveCurrentUserData();
-      currentUser = null;
-      showScreen('auth-screen');
-    }
+    function handleLogout() { saveCurrentUserData(); currentUser = null; showScreen('auth-screen'); }
 
     // Audio Engine
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playSound(type) {
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+      const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
       osc.connect(gain); gain.connect(audioCtx.destination);
 
       if (type === 'correct') {
@@ -551,7 +568,13 @@
     function updateHeaderUI() {
       if (!currentUser) return;
       document.getElementById('header-username').innerText = currentUser.username;
-      document.getElementById('avatar-display').innerText = currentUser.avatar;
+      
+      // Update Header Avatar Combination
+      const eq = currentUser.wardrobe.equipped;
+      document.getElementById('h-base').innerText = eq.base;
+      document.getElementById('h-hat').innerText = eq.hat;
+      document.getElementById('h-acc').innerText = eq.acc;
+
       document.getElementById('header-pet-display').innerText = currentUser.pet ? currentUser.pet.emoji : '🐶';
       document.getElementById('xp-text').innerText = currentUser.xp;
       document.getElementById('gem-text').innerText = currentUser.gems;
@@ -565,8 +588,92 @@
     }
 
     // -----------------------------------------------------------------
-    // MULTI-CHAPTER DATABASE (ฐานข้อมูลหลายบททดสอบต่อระดับชั้น)
+    // DRESS-UP SYSTEM LOGIC (ระบบจัดการแต่งตัว)
     // -----------------------------------------------------------------
+    function openDressUpModal() {
+      renderDressUpUI();
+      document.getElementById('dressup-modal').classList.remove('hidden');
+    }
+
+    function closeDressUpModal() {
+      document.getElementById('dressup-modal').classList.add('hidden');
+      updateHeaderUI();
+    }
+
+    function switchDressUpTab(tab) {
+      currentDressUpTab = tab;
+      ['base', 'hat', 'outfit', 'acc'].forEach(t => {
+        const btn = document.getElementById(`d-tab-${t}`);
+        if (t === tab) {
+          btn.className = "flex-1 py-1.5 rounded-lg text-pink-600 bg-white shadow-sm font-bold";
+        } else {
+          btn.className = "flex-1 py-1.5 rounded-lg text-slate-400 font-bold";
+        }
+      });
+      renderDressUpGrid();
+    }
+
+    function renderDressUpUI() {
+      const eq = currentUser.wardrobe.equipped;
+      document.getElementById('preview-base').innerText = eq.base;
+      document.getElementById('preview-hat').innerText = eq.hat;
+      document.getElementById('preview-acc').innerText = eq.acc;
+
+      const currentOutfitObj = wardrobeItems.outfit.find(o => o.emoji === eq.outfit) || wardrobeItems.outfit[0];
+      document.getElementById('preview-outfit-name').innerText = `${currentOutfitObj.name} ${currentOutfitObj.emoji}`;
+
+      renderDressUpGrid();
+    }
+
+    function renderDressUpGrid() {
+      const grid = document.getElementById('dressup-item-grid');
+      grid.innerHTML = '';
+      const items = wardrobeItems[currentDressUpTab];
+      const eq = currentUser.wardrobe.equipped;
+      const unlocked = currentUser.wardrobe.unlocked;
+
+      items.forEach(item => {
+        const isUnlocked = unlocked.includes(item.id);
+        const isEquipped = (eq[currentDressUpTab] === item.emoji);
+
+        const card = document.createElement('div');
+        card.className = `p-2 rounded-2xl border-2 flex flex-col items-center justify-between cursor-pointer transition-all relative ${isEquipped ? 'bg-pink-100 border-pink-400 shadow-sm' : isUnlocked ? 'bg-white border-pink-100 hover:border-pink-300' : 'bg-slate-50 border-slate-200 opacity-75'}`;
+
+        card.innerHTML = `
+          <div class="text-3xl my-1">${item.emoji || '❌'}</div>
+          <div class="text-[9px] font-bold text-slate-600 text-center truncate w-full mb-1">${item.name}</div>
+          ${isEquipped 
+            ? '<span class="text-[8px] bg-pink-500 text-white font-bold px-1.5 py-0.5 rounded-full">ใส่อยู่</span>'
+            : isUnlocked 
+              ? `<button onclick="equipDressItem('${currentDressUpTab}', '${item.emoji}', '${item.name}')" class="w-full py-0.5 bg-pink-400 hover:bg-pink-500 text-white font-bold text-[9px] rounded-lg">สวมใส่</button>`
+              : `<button onclick="buyDressItem('${item.id}',${item.price})" class="w-full py-0.5 bg-amber-400 hover:bg-amber-500 text-white font-bold text-[9px] rounded-lg flex items-center justify-center space-x-0.5"><span>${item.price}</span><span>💎</span></button>`
+          }
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function equipDressItem(category, emoji, name) {
+      currentUser.wardrobe.equipped[category] = emoji;
+      confetti();
+      renderDressUpUI();
+      saveCurrentUserData();
+    }
+
+    function buyDressItem(itemId, price) {
+      if (currentUser.gems < price) {
+        openModal('⚠️ เพชรไม่พอ', 'คุณมี 💎 เพชรไม่พอในการซื้อไอเทมนี้');
+        return;
+      }
+      currentUser.gems -= price;
+      currentUser.wardrobe.unlocked.push(itemId);
+      confetti();
+      updateHeaderUI();
+      renderDressUpUI();
+      openModal('🎉 ปลดล็อกสำเร็จ!', 'ได้รับไอเทมแต่งตัวใหม่สุดน่ารัก!');
+    }
+
+    // MULTI-CHAPTER DATABASE
     const chaptersDatabase = {
       'ป.1': [
         {
@@ -620,86 +727,6 @@
               { q: '10 - 5 - 1 = ?', a: [3, 4, 5, 2], correct: 1 }
             ]
           }
-        },
-        {
-          id: 'p1_c3', icon: '🧮', title: 'บทที่ 3: การบวกและลบผสมกัน', desc: 'ฝึกคำนวณบวกลบสลับกัน',
-          difficulties: {
-            'ง่าย': [
-              { q: '3 + 2 - 1 = ?', a: [4, 5, 3, 6], correct: 0 },
-              { q: '5 - 2 + 3 = ?', a: [5, 6, 7, 4], correct: 1 },
-              { q: '4 + 4 - 2 = ?', a: [5, 7, 6, 8], correct: 2 },
-              { q: '6 - 3 + 1 = ?', a: [4, 3, 5, 2], correct: 0 },
-              { q: '2 + 5 - 3 = ?', a: [3, 4, 5, 2], correct: 1 }
-            ],
-            'กลาง': [
-              { q: '8 - 3 + 4 = ?', a: [9, 8, 10, 7], correct: 0 },
-              { q: '7 + 2 - 5 = ?', a: [3, 4, 5, 2], correct: 1 },
-              { q: '10 - 4 + 2 = ?', a: [7, 9, 8, 6], correct: 2 },
-              { q: '5 + 3 - 4 = ?', a: [4, 5, 3, 6], correct: 0 },
-              { q: '9 - 6 + 5 = ?', a: [7, 8, 9, 6], correct: 1 }
-            ],
-            'ยาก': [
-              { q: '5 + ? = 9', a: [4, 3, 5, 2], correct: 0 },
-              { q: '8 - ? = 3', a: [4, 5, 6, 3], correct: 1 },
-              { q: '? + 3 = 8', a: [4, 6, 5, 7], correct: 2 },
-              { q: '? - 2 = 6', a: [8, 7, 9, 6], correct: 0 },
-              { q: '10 - ? = 4', a: [5, 6, 7, 4], correct: 1 }
-            ]
-          }
-        }
-      ],
-      'ป.2': [
-        {
-          id: 'p2_c1', icon: '✖️', title: 'บทที่ 1: การคูณเบื้องต้น (แม่ 2-5)', desc: 'ท่องสูตรคูณและหาผลคูณ',
-          difficulties: {
-            'ง่าย': [
-              { q: '2 × 3 = ?', a: [6, 5, 7, 8], correct: 0 },
-              { q: '3 × 4 = ?', a: [10, 12, 11, 14], correct: 1 },
-              { q: '5 × 2 = ?', a: [8, 9, 10, 12], correct: 2 },
-              { q: '4 × 2 = ?', a: [8, 6, 10, 7], correct: 0 },
-              { q: '5 × 3 = ?', a: [12, 15, 14, 16], correct: 1 }
-            ],
-            'กลาง': [
-              { q: '4 × 4 = ?', a: [16, 15, 18, 14], correct: 0 },
-              { q: '5 × 5 = ?', a: [20, 25, 30, 22], correct: 1 },
-              { q: '3 × 8 = ?', a: [22, 21, 24, 25], correct: 2 },
-              { q: '2 × 9 = ?', a: [18, 16, 20, 17], correct: 0 },
-              { q: '4 × 6 = ?', a: [22, 24, 26, 20], correct: 1 }
-            ],
-            'ยาก': [
-              { q: '5 × 7 = ?', a: [35, 30, 40, 32], correct: 0 },
-              { q: '4 × 8 = ?', a: [30, 32, 34, 28], correct: 1 },
-              { q: '3 × 9 = ?', a: [25, 26, 27, 28], correct: 2 },
-              { q: '5 × 9 = ?', a: [45, 40, 50, 42], correct: 0 },
-              { q: '4 × 7 = ?', a: [26, 28, 30, 24], correct: 1 }
-            ]
-          }
-        },
-        {
-          id: 'p2_c2', icon: '➗', title: 'บทที่ 2: การหารเบื้องต้น', desc: 'ฝึกการหารไม่เกินแม่ 5',
-          difficulties: {
-            'ง่าย': [
-              { q: '6 ÷ 2 = ?', a: [3, 2, 4, 5], correct: 0 },
-              { q: '8 ÷ 4 = ?', a: [3, 2, 4, 1], correct: 1 },
-              { q: '10 ÷ 5 = ?', a: [3, 4, 2, 5], correct: 2 },
-              { q: '12 ÷ 3 = ?', a: [4, 3, 5, 6], correct: 0 },
-              { q: '15 ÷ 5 = ?', a: [2, 3, 4, 5], correct: 1 }
-            ],
-            'กลาง': [
-              { q: '16 ÷ 4 = ?', a: [4, 3, 5, 6], correct: 0 },
-              { q: '20 ÷ 5 = ?', a: [3, 4, 5, 6], correct: 1 },
-              { q: '18 ÷ 3 = ?', a: [5, 7, 6, 8], correct: 2 },
-              { q: '14 ÷ 2 = ?', a: [7, 6, 8, 5], correct: 0 },
-              { q: '24 ÷ 4 = ?', a: [5, 6, 7, 8], correct: 1 }
-            ],
-            'ยาก': [
-              { q: '25 ÷ 5 = ?', a: [5, 4, 6, 7], correct: 0 },
-              { q: '27 ÷ 3 = ?', a: [8, 9, 7, 6], correct: 1 },
-              { q: '32 ÷ 4 = ?', a: [7, 6, 8, 9], correct: 2 },
-              { q: '30 ÷ 5 = ?', a: [6, 5, 7, 8], correct: 0 },
-              { q: '36 ÷ 4 = ?', a: [8, 9, 10, 7], correct: 1 }
-            ]
-          }
         }
       ]
     };
@@ -709,7 +736,6 @@
       document.getElementById('chapter-grade-title').innerText = `ระดับชั้น ${grade}`;
       const container = document.getElementById('chapter-list-container');
       container.innerHTML = '';
-
       const chapters = chaptersDatabase[grade] || chaptersDatabase['ป.1'];
 
       chapters.forEach((chap) => {
@@ -719,9 +745,7 @@
 
         div.innerHTML = `
           <div class="flex items-center space-x-3 text-left">
-            <div class="w-11 h-11 bg-sky-50 rounded-2xl flex items-center justify-center text-2xl border border-sky-200">
-              ${chap.icon}
-            </div>
+            <div class="w-11 h-11 bg-sky-50 rounded-2xl flex items-center justify-center text-2xl border border-sky-200">${chap.icon}</div>
             <div>
               <div class="font-bold text-sky-800 text-xs">${chap.title}</div>
               <div class="text-[10px] text-slate-400 mt-0.5">${chap.desc}</div>
@@ -731,7 +755,6 @@
         `;
         container.appendChild(div);
       });
-
       showScreen('chapter-screen');
     }
 
@@ -741,9 +764,7 @@
       document.getElementById('difficulty-modal').classList.remove('hidden');
     }
 
-    function closeDifficultyModal() {
-      document.getElementById('difficulty-modal').classList.add('hidden');
-    }
+    function closeDifficultyModal() { document.getElementById('difficulty-modal').classList.add('hidden'); }
 
     function startMathQuiz(difficulty) {
       closeDifficultyModal();
@@ -765,9 +786,7 @@
       renderQuestion();
     }
 
-    function retryCurrentQuiz() {
-      startMathQuiz(currentQuiz.difficulty);
-    }
+    function retryCurrentQuiz() { startMathQuiz(currentQuiz.difficulty); }
 
     function renderQuestion() {
       document.getElementById('quiz-feedback').classList.add('hidden');
@@ -850,7 +869,7 @@
       if (currentQuiz.correctCount >= 3) confetti();
     }
 
-    // PET SYSTEM LOGIC
+    // PET & ARENA LOGIC
     function openPetModal() { updatePetUI(); document.getElementById('pet-modal').classList.remove('hidden'); }
     function closePetModal() { document.getElementById('pet-modal').classList.add('hidden'); }
     function updatePetUI() {
@@ -869,16 +888,16 @@
       if (currentUser.pet.hunger >= 100) { openModal('😊 อิ่มแล้ว', 'สัตว์เลี้ยงของคุณอิ่มเต็มที่แล้ว!'); return; }
       currentUser.food--; currentUser.pet.hunger = Math.min(100, currentUser.pet.hunger + 30);
       updateHeaderUI(); updatePetUI(); trackDailyQuestProgress('pet', 1);
-      openModal('🍖 ง้ำๆ!', `คุณให้อาหาร ${currentUser.pet.name} แล้ว อิ่มขึ้นทันตา!`);
+      openModal('🍖 ง้ำๆ!', `คุณให้อาหาร ${currentUser.pet.name} แล้ว!`);
     }
     function playWithPet() {
-      if (currentUser.pet.happiness >= 100) { openModal('🥰 มีความสุขสุดๆ', 'สัตว์เลี้ยงของคุณแฮปปี้สุดๆ แล้ว!'); return; }
+      if (currentUser.pet.happiness >= 100) { openModal('🥰 มีความสุขสุดๆ', 'สัตว์เลี้ยงของคุณแฮปปี้สุดๆ!'); return; }
       currentUser.pet.happiness = Math.min(100, currentUser.pet.happiness + 20);
       currentUser.pet.hunger = Math.max(0, currentUser.pet.hunger - 10);
-      updatePetUI(); confetti(); openModal('⚽ วิ่งเล่นสนุกจัง!', `${currentUser.pet.name} สนุกมาก! ค่าความสุขเพิ่มขึ้นแล้ว`);
+      updatePetUI(); confetti(); openModal('⚽ วิ่งเล่นสนุกจัง!', `${currentUser.pet.name} สนุกมาก!`);
     }
 
-    // DAILY QUEST SYSTEM
+    // DAILY QUESTS
     function openDailyQuestModal() { renderDailyQuests(); document.getElementById('daily-quest-modal').classList.remove('hidden'); }
     function closeDailyQuestModal() { document.getElementById('daily-quest-modal').classList.add('hidden'); }
     function trackDailyQuestProgress(questId, amount = 1) {
@@ -892,7 +911,7 @@
         const isDone = q.progress >= q.target;
         const div = document.createElement('div');
         div.className = "bg-amber-50/70 p-3 rounded-2xl border border-amber-200 text-left flex justify-between items-center";
-        div.innerHTML = `<div><div class="font-bold text-slate-700 text-xs">${q.title}</div><div class="text-[10px] text-amber-600 font-bold mt-0.5">ความคืบหน้า: ${q.progress}/${q.target} | รางวัล: +${q.rewardGem} 💎</div></div><button onclick="claimQuestReward(${idx})" ${!isDone || q.claimed ? 'disabled' : ''} className="px-3 py-1.5 rounded-xl font-bold text-xs ${q.claimed ? 'bg-slate-200 text-slate-400' : isDone ? 'bg-emerald-400 text-white shadow-sm hover:bg-emerald-500' : 'bg-amber-200 text-amber-600 cursor-not-allowed'}">${q.claimed ? 'รับแล้ว' : isDone ? 'รับรางวัล' : 'ยังไม่เสร็จ'}</button>`;
+        div.innerHTML = `<div><div class="font-bold text-slate-700 text-xs">${q.title}</div><div class="text-[10px] text-amber-600 font-bold mt-0.5">ความคืบหน้า: ${q.progress}/${q.target} | รางวัล: +${q.rewardGem} 💎</div></div><button onclick="claimQuestReward(${idx})" ${!isDone || q.claimed ? 'disabled' : ''} class="px-3 py-1.5 rounded-xl font-bold text-xs ${q.claimed ? 'bg-slate-200 text-slate-400' : isDone ? 'bg-emerald-400 text-white shadow-sm hover:bg-emerald-500' : 'bg-amber-200 text-amber-600 cursor-not-allowed'}">${q.claimed ? 'รับแล้ว' : isDone ? 'รับรางวัล' : 'ยังไม่เสร็จ'}</button>`;
         container.appendChild(div);
       });
     }
@@ -905,12 +924,20 @@
       }
     }
 
-    // RPG Arena Logic
+    // RPG Arena
     let p1, p2, arenaIsPlaying;
-    function startArena() { showScreen('arena-screen'); resetArena(); }
+    function startArena() {
+      showScreen('arena-screen');
+      const eq = currentUser.wardrobe.equipped;
+      document.getElementById('arena-base').innerText = eq.base;
+      document.getElementById('arena-hat').innerText = eq.hat;
+      document.getElementById('arena-acc').innerText = eq.acc;
+      document.getElementById('arena-p1-name').innerText = currentUser.username;
+      resetArena();
+    }
     function resetArena() {
-      p1 = { hp: 100, maxHp: 100, sp: 50, maxSp: 50, atk: 18 };
-      p2 = { hp: 110, maxHp: 110, sp: 50, maxSp: 50, atk: 12 };
+      p1 = { hp: 100, maxHp: 100, sp: 50, maxSp: 50 };
+      p2 = { hp: 110, maxHp: 110, sp: 50, maxSp: 50 };
       arenaIsPlaying = true;
       document.getElementById('arena-p2-avatar').innerText = '👾';
       document.getElementById('arena-btn-reset').classList.add('hidden');
@@ -936,8 +963,6 @@
     }
 
     // Shop & Gacha Modals
-    function openWardrobeModal() { document.getElementById('wardrobe-modal').classList.remove('hidden'); }
-    function closeWardrobeModal() { document.getElementById('wardrobe-modal').classList.add('hidden'); }
     function openShopModal() { document.getElementById('shop-modal').classList.remove('hidden'); }
     function closeShopModal() { document.getElementById('shop-modal').classList.add('hidden'); }
     function openGachaModal() { document.getElementById('gacha-modal').classList.remove('hidden'); }
@@ -953,13 +978,23 @@
 
     function rollGacha() {
       if (currentUser.gems < 20) { openModal('⚠️ เพชรไม่พอ', 'ต้องการ 20 💎 เพื่อสุ่ม'); return; }
-      currentUser.gems -= 20; currentUser.xp += 50; updateHeaderUI(); closeGachaModal(); confetti();
-      openModal('🎁 ยินดีด้วย!', 'คุณได้รับรางวัลพิเศษ ⭐ +50 EXP!');
+      currentUser.gems -= 20;
+      
+      // Gacha prize pool: random unlock of hats/acc
+      const lockedHats = wardrobeItems.hat.filter(h => !currentUser.wardrobe.unlocked.includes(h.id));
+      if (lockedHats.length > 0) {
+        const prize = lockedHats[Math.floor(Math.random() * lockedHats.length)];
+        currentUser.wardrobe.unlocked.push(prize.id);
+        updateHeaderUI(); closeGachaModal(); confetti();
+        openModal('🎁 ยินดีด้วย!', `คุณได้รับหมวกใหม่: ${prize.name} ${prize.emoji}`);
+      } else {
+        currentUser.xp += 50; updateHeaderUI(); closeGachaModal(); confetti();
+        openModal('🎁 ยินดีด้วย!', 'คุณได้รับรางวัลพิเศษ ⭐ +50 EXP!');
+      }
     }
 
     function triggerShake(elementId) {
-      const el = document.getElementById(elementId);
-      if (!el) return;
+      const el = document.getElementById(elementId); if (!el) return;
       el.classList.remove('shake-effect'); void el.offsetWidth; el.classList.add('shake-effect');
     }
 
